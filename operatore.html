@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <title>Gestione Operatore</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(135deg,#1f3c88,#4e9af1);color:#132743}
+    .container{max-width:900px;margin:40px auto;padding:24px;background:#f7f9fc;border-radius:22px;box-shadow:0 20px 44px rgba(0,0,0,.20)}
+    .header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+    .title{margin:0;font-size:28px;letter-spacing:.04em;text-transform:uppercase;color:#1f3c88}
+    .subtitle{margin:4px 0 0;font-size:14px;color:#4b5b82}
+    .card{background:#fff;border-radius:18px;padding:18px 20px 20px;box-shadow:0 12px 28px rgba(15,23,42,.10);margin-bottom:16px}
+    .card-title{font-size:18px;font-weight:600;color:#1f2937;margin:0 0 10px}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .col{display:flex;flex-direction:column;gap:8px;min-width:220px}
+    .input{padding:10px 12px;border-radius:12px;border:1px solid #d1d5db;font-size:14px;background:#fff;width:100%}
+    .btn{border:none;border-radius:999px;padding:10px 16px;font-size:14px;cursor:pointer}
+    .btn-primary{background:#4f46e5;color:#fff;box-shadow:0 12px 26px rgba(79,70,229,.35)}
+    .btn-outline{background:#fff;color:#374151;border:1px solid #cbd5e1}
+    .pill{display:inline-block;padding:6px 12px;border-radius:999px;background:#e5e7eb}
+    .note{font-size:12px;color:#6b7280}
+    .warn{font-size:12px;color:#b45309}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1 class="title">Gestione Operatore</h1>
+        <p class="subtitle">Parametri lotteria e dati cliente</p>
+      </div>
+      <div class="row">
+        <a class="btn btn-outline" href="lotteria.html" target="_self">Apri lotteria</a>
+        <a class="btn btn-outline" href="punti.html" target="_self">Apri area punti</a>
+      </div>
+    </div>
+
+    <section class="card">
+      <h2 class="card-title">Parametri lotteria</h2>
+      <div class="row">
+        <div class="col">
+          <label>Requisito crociere</label>
+          <input id="reqTrips" class="input" type="number" min="0" step="1">
+        </div>
+        <div class="col">
+          <label>Requisito punti cumulati</label>
+          <input id="reqPoints" class="input" type="number" min="0" step="50">
+        </div>
+        <div class="col">
+          <label>Pubblicazione vincitore (giorni)</label>
+          <input id="pubDays" class="input" type="number" min="0" step="1">
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div class="col">
+          <label>Data estrazione (override)</label>
+          <input id="drawDate" class="input" type="date">
+        </div>
+        <button id="saveCfgBtn" class="btn btn-primary">Salva parametri</button>
+      </div>
+      <p class="note" id="cfgMsg" style="margin-top:8px"></p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Programma fedeltà</h2>
+      <div class="row">
+        <div class="col">
+          <label>Sconto percentuale</label>
+          <input id="loyalDisc" class="input" type="number" min="0" max="100" step="1">
+        </div>
+        <div class="col">
+          <label>Limite punti (cap)</label>
+          <input id="loyalCap" class="input" type="number" min="0" step="10">
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button id="saveLoyalBtn" class="btn btn-primary">Salva scontistica</button>
+        <span class="pill">Anteprima: <strong id="loyalPreview">—</strong></span>
+      </div>
+      <p class="note" id="loyalMsg" style="margin-top:8px"></p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Dati cliente</h2>
+      <div class="row">
+        <div class="col">
+          <label>Punti cumulati vita</label>
+          <input id="lifePts" class="input" type="number" min="0" step="10">
+        </div>
+        <div class="col">
+          <label>Crociere completate</label>
+          <input id="trips" class="input" type="number" min="0" step="1">
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button id="saveDataBtn" class="btn btn-primary">Salva dati</button>
+        <span class="pill">Biglietti: <strong id="ticketsCount">0</strong></span>
+      </div>
+      <p class="note" id="dataMsg" style="margin-top:8px"></p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Biglietti</h2>
+      <div class="row">
+        <button id="clearTicketsBtn" class="btn btn-outline">Svuota biglietti</button>
+        <div class="col" style="max-width:280px">
+          <label>Elimina biglietto per ID</label>
+          <input id="delTicketId" class="input" type="text" placeholder="ID es. 123456">
+        </div>
+        <button id="delTicketBtn" class="btn btn-outline">Elimina</button>
+      </div>
+      <p class="warn" style="margin-top:8px">Operazioni irreversibili.</p>
+      <div id="ticketsList" class="row" style="margin-top:8px"></div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Rubrica clienti fidati</h2>
+      <div class="row">
+        <div class="col">
+          <label>Nome</label>
+          <input id="cName" class="input" type="text" placeholder="Nome e cognome">
+        </div>
+        <div class="col">
+          <label>Telefono (prefisso internazionale)</label>
+          <input id="cPhone" class="input" type="tel" placeholder="Es. 3931234567">
+        </div>
+        <div class="col">
+          <label>Email</label>
+          <input id="cEmail" class="input" type="email" placeholder="email@dominio.it">
+        </div>
+        <div class="col">
+          <label>Gruppo</label>
+          <input id="cGroup" class="input" type="text" placeholder="Es. VIP, Crociere 2026">
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div class="col" style="min-width:240px">
+          <label>Template messaggio aziendale</label>
+          <select id="msgTemplate" class="input">
+            <option value="">—</option>
+            <option value="lastminute">Last minute</option>
+            <option value="promo">Promo sconto fedeltà</option>
+            <option value="newtrip">Nuova crociera</option>
+          </select>
+        </div>
+        <div class="col">
+          <label>Oggetto Email (azienda)</label>
+          <input id="msgSubjectCompany" class="input" type="text" placeholder="Oggetto email per invio singolo">
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button id="addContactBtn" class="btn btn-primary">Aggiungi contatto</button>
+        <button id="clearContactsBtn" class="btn btn-outline">Svuota rubrica</button>
+        <button id="seedContactsBtn" class="btn btn-outline">Carica esempio contatti</button>
+      </div>
+      <p class="warn" style="margin-top:8px">L’invio apre una scheda per ogni contatto; il browser potrebbe bloccare i popup.</p>
+      <div id="contactsList" class="row" style="margin-top:8px"></div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Buoni regalo</h2>
+      <div class="row">
+        <div class="col">
+          <label>Valore (€)</label>
+          <input id="voucherAmount" class="input" type="number" min="0" step="10">
+        </div>
+        <div class="col">
+          <label>Codice (facoltativo)</label>
+          <input id="voucherCode" class="input" type="text" placeholder="Se vuoto, generato">
+        </div>
+        <div class="col">
+          <label>Destinatario Nome</label>
+          <input id="voucherName" class="input" type="text" placeholder="Nome persona cara">
+        </div>
+        <div class="col">
+          <label>Telefono</label>
+          <input id="voucherPhone" class="input" type="tel" placeholder="Es. 3931234567">
+        </div>
+        <div class="col">
+          <label>Email</label>
+          <input id="voucherEmail" class="input" type="email" placeholder="email@dominio.it">
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div class="col" style="min-width:200px">
+          <label>Grafica</label>
+          <select id="voucherTheme" class="input">
+            <option value="a">Classico Blu</option>
+            <option value="b">Oceano</option>
+            <option value="c">Celebration</option>
+          </select>
+        </div>
+        <div class="col" style="min-width:200px">
+          <label>Segna pagato</label>
+          <input id="voucherPaid" type="checkbox" style="width:auto">
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div class="col" style="flex:1">
+          <label>Messaggio sul buono</label>
+          <textarea id="voucherMsg" class="input" rows="3" placeholder="Scrivi un messaggio da stampare sul buono"></textarea>
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button id="addVoucherBtn" class="btn btn-primary">Genera buono</button>
+        <button id="clearVouchersBtn" class="btn btn-outline">Svuota buoni</button>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div class="col" style="min-width:200px">
+          <label>Filtro stato</label>
+          <select id="voucherFilter" class="input">
+            <option value="">Tutti</option>
+            <option value="active">Attivi</option>
+            <option value="paid">Pagati</option>
+            <option value="redeemed">Usati</option>
+          </select>
+        </div>
+        <div class="col" style="flex:1">
+          <label>Ricerca</label>
+          <input id="voucherSearch" class="input" type="text" placeholder="Codice o nome">
+        </div>
+      </div>
+      <div id="vouchersList" class="row" style="margin-top:8px"></div>
+    </section>
+  </div>
+
+  <script>
+    const DEF={LOTTERY_TRIPS_REQUIRED:3,LOTTERY_POINTS_REQUIRED:3000,PUBLICATION_DAYS:30};
+    const LOYDEF={DISCOUNT_PERCENT:10,POINTS_CAP:200};
+    function getCfg(){
+      try{
+        const v=localStorage.getItem("pf_lottery_cfg");
+        if(!v) return DEF;
+        const o=JSON.parse(v);
+        return {
+          LOTTERY_TRIPS_REQUIRED:o.LOTTERY_TRIPS_REQUIRED??DEF.LOTTERY_TRIPS_REQUIRED,
+          LOTTERY_POINTS_REQUIRED:o.LOTTERY_POINTS_REQUIRED??DEF.LOTTERY_POINTS_REQUIRED,
+          PUBLICATION_DAYS:o.PUBLICATION_DAYS??DEF.PUBLICATION_DAYS
+        };
+      }catch(e){return DEF}
+    }
+    function setCfg(o){
+      localStorage.setItem("pf_lottery_cfg",JSON.stringify(o));
+    }
+    function getTickets(){
+      try{return JSON.parse(localStorage.getItem("pf_lotteryTickets")||"[]")}catch(e){return []}
+    }
+    function setTickets(a){
+      localStorage.setItem("pf_lotteryTickets",JSON.stringify(a));
+    }
+    function getLoyal(){
+      try{
+        const v=localStorage.getItem("pf_loyalty_cfg");
+        if(!v) return LOYDEF;
+        const o=JSON.parse(v);
+        return {
+          DISCOUNT_PERCENT:o.DISCOUNT_PERCENT??LOYDEF.DISCOUNT_PERCENT,
+          POINTS_CAP:o.POINTS_CAP??LOYDEF.POINTS_CAP
+        };
+      }catch(e){return LOYDEF}
+    }
+    function setLoyal(o){
+      localStorage.setItem("pf_loyalty_cfg",JSON.stringify(o));
+      localStorage.setItem("pf_discPercent",String(o.DISCOUNT_PERCENT));
+      localStorage.setItem("pf_pointsCap",String(o.POINTS_CAP));
+    }
+    function getContacts(){
+      try{return JSON.parse(localStorage.getItem("pf_contacts")||"[]")}catch(e){return []}
+    }
+    function setContacts(a){
+      localStorage.setItem("pf_contacts",JSON.stringify(a));
+    }
+    function getVouchers(){
+      try{return JSON.parse(localStorage.getItem("pf_vouchers")||"[]")}catch(e){return []}
+    }
+    function setVouchers(a){
+      localStorage.setItem("pf_vouchers",JSON.stringify(a));
+    }
+    function refreshTickets(){
+      const arr=getTickets();
+      document.getElementById("ticketsCount").textContent=String(arr.length);
+      const box=document.getElementById("ticketsList");
+      box.innerHTML="";
+      arr.slice().reverse().forEach(t=>{
+        const d=document.createElement("div");
+        d.className="pill";
+        d.textContent="ID "+t.id+" • "+new Date(t.ts).toLocaleString();
+        box.appendChild(d);
+      });
+    }
+    function loadState(){
+      const c=getCfg();
+      document.getElementById("reqTrips").value=String(c.LOTTERY_TRIPS_REQUIRED);
+      document.getElementById("reqPoints").value=String(c.LOTTERY_POINTS_REQUIRED);
+      document.getElementById("pubDays").value=String(c.PUBLICATION_DAYS);
+      const dd=localStorage.getItem("pf_lottery_drawDate");
+      if(dd){
+        const d=new Date(dd);
+        const iso=d.toISOString().slice(0,10);
+        document.getElementById("drawDate").value=iso;
+      }
+      const life=parseInt(localStorage.getItem("pf_pointsLifetime")||"0",10);
+      const trips=parseInt(localStorage.getItem("pf_trips")||"0",10);
+      document.getElementById("lifePts").value=String(life);
+      document.getElementById("trips").value=String(trips);
+      refreshTickets();
+      const l=getLoyal();
+      document.getElementById("loyalDisc").value=String(l.DISCOUNT_PERCENT);
+      document.getElementById("loyalCap").value=String(l.POINTS_CAP);
+      document.getElementById("loyalPreview").textContent=l.DISCOUNT_PERCENT+"% su cap "+l.POINTS_CAP;
+      refreshContacts();
+      refreshVouchers();
+    }
+    function saveCfg(){
+      const o={
+        LOTTERY_TRIPS_REQUIRED:parseInt(document.getElementById("reqTrips").value||"0",10),
+        LOTTERY_POINTS_REQUIRED:parseInt(document.getElementById("reqPoints").value||"0",10),
+        PUBLICATION_DAYS:parseInt(document.getElementById("pubDays").value||"0",10)
+      };
+      setCfg(o);
+      const d=document.getElementById("drawDate").value;
+      if(d){
+        const ts=new Date(d+"T00:00:00").getTime();
+        localStorage.setItem("pf_lottery_drawDate",String(ts));
+      }else{
+        localStorage.removeItem("pf_lottery_drawDate");
+      }
+      document.getElementById("cfgMsg").textContent="Parametri salvati.";
+    }
+    function saveLoyal(){
+      const o={
+        DISCOUNT_PERCENT:parseInt(document.getElementById("loyalDisc").value||"0",10),
+        POINTS_CAP:parseInt(document.getElementById("loyalCap").value||"0",10)
+      };
+      setLoyal(o);
+      document.getElementById("loyalPreview").textContent=o.DISCOUNT_PERCENT+"% su cap "+o.POINTS_CAP;
+      document.getElementById("loyalMsg").textContent="Scontistica salvata.";
+    }
+    function saveData(){
+      const life=parseInt(document.getElementById("lifePts").value||"0",10);
+      const trips=parseInt(document.getElementById("trips").value||"0",10);
+      localStorage.setItem("pf_pointsLifetime",String(life));
+      localStorage.setItem("pf_trips",String(trips));
+      document.getElementById("dataMsg").textContent="Dati salvati.";
+    }
+    function clearTickets(){
+      setTickets([]);
+      refreshTickets();
+    }
+    function deleteTicket(){
+      const id=(document.getElementById("delTicketId").value||"").trim();
+      if(!id) return;
+      const arr=getTickets().filter(t=>String(t.id)!==id);
+      setTickets(arr);
+      refreshTickets();
+      document.getElementById("delTicketId").value="";
+    }
+    function refreshContacts(){
+      const arr=getContacts();
+      const box=document.getElementById("contactsList");
+      box.innerHTML="";
+      arr.slice().reverse().forEach(c=>{
+        const d=document.createElement("div");
+        d.className="pill";
+        const g=(c.groups||[]).join(", ");
+        d.innerHTML=c.name+" • "+(c.phone||"")+" • "+(c.email||"")+" • "+(g||"—");
+        const del=document.createElement("button");
+        del.className="btn btn-outline";
+        del.textContent="Elimina";
+        del.style.marginLeft="8px";
+        del.addEventListener("click",function(){
+          setContacts(getContacts().filter(x=>x.id!==c.id));
+          refreshContacts();
+        });
+        const msg=document.createElement("input");
+        msg.className="input";
+        msg.type="text";
+        msg.placeholder="Messaggio singolo";
+        msg.style.marginLeft="8px";
+        const apply=document.createElement("button");
+        apply.className="btn btn-outline";
+        apply.textContent="Applica template";
+        apply.style.marginLeft="8px";
+        apply.addEventListener("click",function(){
+          const key=(document.getElementById("msgTemplate").value||"").trim();
+          if(!key) return;
+          const text=buildTemplate(key,c);
+          msg.value=text;
+        });
+        const wa=document.createElement("button");
+        wa.className="btn btn-outline";
+        wa.textContent="WhatsApp";
+        wa.style.marginLeft="8px";
+        wa.addEventListener("click",function(){
+          const m=(msg.value||"").trim();
+          const phone=c.phone||"";
+          if(!phone||!m) return;
+          const url="https://wa.me/"+encodeURIComponent(phone)+"?text="+encodeURIComponent(m);
+          window.open(url,"_blank");
+        });
+        const waLink=document.createElement("a");
+        waLink.href="#";
+        waLink.textContent="Link WA";
+        waLink.style.marginLeft="8px";
+        waLink.addEventListener("click",function(e){
+          e.preventDefault();
+          const phone=c.phone||""; if(!phone) return;
+          const def=defaultMessage(c);
+          const url="https://wa.me/"+encodeURIComponent(phone)+"?text="+encodeURIComponent(def);
+          window.open(url,"_blank");
+        });
+        const em=document.createElement("button");
+        em.className="btn btn-outline";
+        em.textContent="Email";
+        em.style.marginLeft="8px";
+        em.addEventListener("click",function(){
+          const subj=(document.getElementById("msgSubjectCompany").value||"Comunicazione").trim();
+          const body=(msg.value||"").trim();
+          const email=c.email||"";
+          if(!email||!subj||!body) return;
+          const href="mailto:"+encodeURIComponent(email)+"?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(body);
+          window.location.href=href;
+        });
+        const mailLink=document.createElement("a");
+        mailLink.href="#";
+        mailLink.textContent="Link Email";
+        mailLink.style.marginLeft="8px";
+        mailLink.addEventListener("click",function(e){
+          e.preventDefault();
+          const email=c.email||""; if(!email) return;
+          const subj=(document.getElementById("msgSubjectCompany").value||"Comunicazione").trim();
+          const body=defaultMessage(c);
+          const href="mailto:"+encodeURIComponent(email)+"?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(body);
+          window.location.href=href;
+        });
+        d.appendChild(del);
+        d.appendChild(msg);
+        d.appendChild(apply);
+        d.appendChild(wa);
+        d.appendChild(waLink);
+        d.appendChild(em);
+        d.appendChild(mailLink);
+        box.appendChild(d);
+      });
+    }
+    function buildTemplate(key,c){
+      const name=c.name||"Cliente";
+      if(key==="lastminute"){
+        return "Ciao "+name+", ultime disponibilità per crociere last minute. Contattaci subito per dettagli e prezzi.";
+      }
+      if(key==="promo"){
+        const percent=(localStorage.getItem("pf_discPercent")||"10");
+        return "Ciao "+name+", promo fedeltà attiva: sconto "+percent+"% su crociere selezionate. Rispondi per info.";
+      }
+      if(key==="newtrip"){
+        return "Ciao "+name+", nuove partenze disponibili. Vuoi ricevere le proposte per la prossima crociera?";
+      }
+      return "";
+    }
+    function defaultMessage(c){
+      const t=(document.getElementById("msgTemplate").value||"").trim();
+      const m=buildTemplate(t,c);
+      if(m) return m;
+      const name=c.name||"Cliente";
+      return "Ciao "+name+", ti scriviamo dall’agenzia per aggiornamenti e offerte.";
+    }
+    function seedSampleContacts(){
+      const samples=[
+        {name:"Mario Rossi",phone:"3931111111",email:"mario.rossi@example.com",groups:["VIP"]},
+        {name:"Luisa Bianchi",phone:"3932222222",email:"luisa.bianchi@example.com",groups:["Recensioni"]},
+        {name:"Paolo Verdi",phone:"3933333333",email:"paolo.verdi@example.com",groups:["Crociere 2026"]}
+      ];
+      const arr=getContacts();
+      samples.forEach(s=>{
+        arr.push({id:String(Math.floor(100000+Math.random()*899999)),...s});
+      });
+      setContacts(arr);
+      refreshContacts();
+    }
+    function addContact(){
+      const name=(document.getElementById("cName").value||"").trim();
+      const phone=(document.getElementById("cPhone").value||"").trim();
+      const email=(document.getElementById("cEmail").value||"").trim();
+      const group=(document.getElementById("cGroup").value||"").trim();
+      if(!name) return;
+      const obj={id:String(Math.floor(100000+Math.random()*899999)),name,phone,email,groups:group?[group]:[]};
+      const arr=getContacts();arr.push(obj);setContacts(arr);
+      document.getElementById("cName").value="";
+      document.getElementById("cPhone").value="";
+      document.getElementById("cEmail").value="";
+      document.getElementById("cGroup").value="";
+      refreshContacts();
+    }
+    function clearContacts(){
+      setContacts([]);refreshContacts();
+    }
+    function refreshVouchers(){
+      let arr=getVouchers();
+      const f=(document.getElementById("voucherFilter").value||"").trim();
+      const q=(document.getElementById("voucherSearch").value||"").trim().toLowerCase();
+      arr=arr.filter(v=>{
+        if(f==="active") return !v.paid && !v.redeemed;
+        if(f==="paid") return v.paid && !v.redeemed;
+        if(f==="redeemed") return v.redeemed;
+        return true;
+      }).filter(v=>{
+        if(!q) return true;
+        const s=(v.code||"").toLowerCase()+" "+(v.name||"").toLowerCase();
+        return s.includes(q);
+      });
+      const box=document.getElementById("vouchersList");
+      box.innerHTML="";
+      arr.slice().reverse().forEach(v=>{
+        const d=document.createElement("div");
+        d.className="pill";
+        const status=v.redeemed?"Usato":(v.paid?"Pagato":"Attivo");
+        d.textContent="Buono "+v.code+" • €"+v.amount+" • "+(v.name||"")+" • "+status+" • Tema "+(v.theme||"a");
+        const amt=document.createElement("input");
+        amt.className="input";amt.type="number";amt.style.marginLeft="8px";amt.min="0";amt.step="10";amt.value=String(v.amount||0);
+        const msg=document.createElement("input");
+        msg.className="input";msg.type="text";msg.style.marginLeft="8px";msg.placeholder="Messaggio";msg.value=v.message||"";
+        const th=document.createElement("select");
+        th.className="input";th.style.marginLeft="8px";
+        ["a","b","c"].forEach(t=>{const o=document.createElement("option");o.value=t;o.textContent=t;th.appendChild(o)});
+        th.value=v.theme||"a";
+        const save=document.createElement("button");
+        save.className="btn btn-outline";save.textContent="Salva";save.style.marginLeft="8px";
+        save.addEventListener("click",function(){
+          const arr=getVouchers().map(x=>x.id===v.id?Object.assign({},x,{amount:parseFloat(amt.value||"0")||0,message:msg.value||"",theme:th.value||"a"}):x);
+          setVouchers(arr);refreshVouchers();
+        });
+        const use=document.createElement("button");
+        use.className="btn btn-outline";use.textContent="Marca usato";use.style.marginLeft="8px";
+        use.addEventListener("click",function(){redeemVoucher(v.id)});
+        const paid=document.createElement("button");
+        paid.className="btn btn-outline";paid.textContent="Segna pagato";paid.style.marginLeft="8px";
+        paid.addEventListener("click",function(){markPaid(v.id)});
+        const del=document.createElement("button");
+        del.className="btn btn-outline";del.textContent="Elimina";del.style.marginLeft="8px";
+        del.addEventListener("click",function(){deleteVoucher(v.id)});
+        const dl=document.createElement("button");
+        dl.className="btn btn-outline";dl.textContent="Scarica buono";dl.style.marginLeft="8px";
+        dl.addEventListener("click",function(){openVoucher(v.id)});
+        const wa=document.createElement("button");
+        wa.className="btn btn-outline";wa.textContent="WhatsApp";wa.style.marginLeft="8px";
+        wa.addEventListener("click",function(){shareVoucherWhatsApp(v.id)});
+        const em=document.createElement("button");
+        em.className="btn btn-outline";em.textContent="Email";em.style.marginLeft="8px";
+        em.addEventListener("click",function(){sendVoucherEmail(v.id)});
+        d.appendChild(amt);d.appendChild(msg);d.appendChild(th);d.appendChild(save);d.appendChild(use);d.appendChild(paid);d.appendChild(del);d.appendChild(dl);d.appendChild(wa);d.appendChild(em);
+        box.appendChild(d);
+      });
+    }
+    function genCode(len){
+      const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let s="";for(let i=0;i<len;i++){s+=chars[Math.floor(Math.random()*chars.length)]}
+      return s;
+    }
+    function addVoucher(){
+      const amount=parseFloat(document.getElementById("voucherAmount").value||"0");
+      const name=(document.getElementById("voucherName").value||"").trim();
+      const phone=(document.getElementById("voucherPhone").value||"").trim();
+      const email=(document.getElementById("voucherEmail").value||"").trim();
+      const message=(document.getElementById("voucherMsg").value||"").trim();
+      const theme=(document.getElementById("voucherTheme").value||"a");
+      const paid=document.getElementById("voucherPaid").checked;
+      let code=(document.getElementById("voucherCode").value||"").trim();
+      if(!amount||amount<=0) return;
+      if(!code) code=genCode(8);
+      const v={id:String(Math.floor(100000+Math.random()*899999)),code,amount,name,phone,email,message,ts:Date.now(),theme,paid:paid,redeemed:false};
+      const arr=getVouchers();arr.push(v);setVouchers(arr);
+      document.getElementById("voucherAmount").value="";
+      document.getElementById("voucherName").value="";
+      document.getElementById("voucherPhone").value="";
+      document.getElementById("voucherEmail").value="";
+      document.getElementById("voucherCode").value="";
+      document.getElementById("voucherMsg").value="";
+      document.getElementById("voucherTheme").value="a";
+      document.getElementById("voucherPaid").checked=false;
+      refreshVouchers();
+    }
+    function clearVouchers(){
+      setVouchers([]);refreshVouchers();
+    }
+    function redeemVoucher(id){
+      const arr=getVouchers().map(v=>v.id===id?Object.assign({},v,{redeemed:true,redeemedTs:Date.now()}):v);
+      setVouchers(arr);refreshVouchers();
+    }
+    function markPaid(id){
+      const arr=getVouchers().map(v=>v.id===id?Object.assign({},v,{paid:true,paidTs:Date.now()}):v);
+      setVouchers(arr);refreshVouchers();
+    }
+    function deleteVoucher(id){
+      const arr=getVouchers().filter(v=>v.id!==id);
+      setVouchers(arr);refreshVouchers();
+    }
+    function openVoucher(id){
+      window.open("buono.html?id="+encodeURIComponent(id),"_blank");
+    }
+    function shareVoucherWhatsApp(id){
+      const v=getVouchers().find(x=>x.id===id);if(!v) return;
+      const text="Buono regalo per te: codice "+v.code+" del valore di €"+v.amount+(v.message?('. Messaggio: '+v.message):'.');
+      const base=v.phone?"https://wa.me/"+encodeURIComponent(v.phone)+"?text=":"https://wa.me/?text=";
+      window.open(base+encodeURIComponent(text),"_blank");
+    }
+    function sendVoucherEmail(id){
+      const v=getVouchers().find(x=>x.id===id);if(!v) return;
+      const subj="Buono regalo";
+      const body="Buono regalo per te: codice "+v.code+" del valore di €"+v.amount+(v.message?("\n\nMessaggio: "+v.message):"")+".";
+      const href="mailto:"+encodeURIComponent(v.email||"")+"?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(body);
+      window.location.href=href;
+    }
+    document.addEventListener("DOMContentLoaded",function(){
+      loadState();
+      document.getElementById("saveCfgBtn").addEventListener("click",saveCfg);
+      document.getElementById("saveLoyalBtn").addEventListener("click",saveLoyal);
+      document.getElementById("saveDataBtn").addEventListener("click",saveData);
+      document.getElementById("clearTicketsBtn").addEventListener("click",clearTickets);
+      document.getElementById("delTicketBtn").addEventListener("click",deleteTicket);
+      document.getElementById("addContactBtn").addEventListener("click",addContact);
+      document.getElementById("clearContactsBtn").addEventListener("click",clearContacts);
+      document.getElementById("addVoucherBtn").addEventListener("click",addVoucher);
+      document.getElementById("clearVouchersBtn").addEventListener("click",clearVouchers);
+      document.getElementById("voucherFilter").addEventListener("change",refreshVouchers);
+      document.getElementById("voucherSearch").addEventListener("input",refreshVouchers);
+      document.getElementById("seedContactsBtn").addEventListener("click",seedSampleContacts);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <title>Feedback privato</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(135deg,#1f3c88,#4e9af1);color:#132743}
+    .container{max-width:900px;margin:40px auto;padding:24px;background:#f7f9fc;border-radius:22px;box-shadow:0 20px 44px rgba(0,0,0,.20)}
+    .header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+    .title{margin:0;font-size:28px;letter-spacing:.04em;text-transform:uppercase;color:#1f3c88}
+    .subtitle{margin:4px 0 0;font-size:14px;color:#4b5b82}
+    .card{background:#fff;border-radius:18px;padding:18px 20px 20px;box-shadow:0 12px 28px rgba(15,23,42,.10);margin-bottom:16px}
+    .card-title{font-size:18px;font-weight:600;color:#1f2937;margin:0 0 10px}
+    .field{display:flex;flex-direction:column;gap:6px}
+    .label{font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.06em}
+    .input,.textarea{padding:10px 12px;border-radius:12px;border:1px solid #d1d5db;font-size:14px;background:#fff}
+    .textarea{min-height:140px;resize:vertical}
+    .actions{display:flex;gap:10px;margin-top:12px}
+    .btn{border:none;border-radius:999px;padding:10px 16px;font-size:14px;cursor:pointer}
+    .btn-primary{background:#4f46e5;color:#fff;box-shadow:0 12px 26px rgba(79,70,229,.35)}
+    .btn-outline{background:#fff;color:#374151;border:1px solid #cbd5e1}
+    .success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;padding:12px;border-radius:12px}
+    .note{font-size:12px;color:#6b7280}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1 class="title">Feedback privato</h1>
+        <p class="subtitle">Ci dispiace che l’esperienza non sia stata all’altezza. Raccontaci cosa non ha funzionato.</p>
+      </div>
+      <span id="voteBadge" class="subtitle"></span>
+    </div>
+
+    <section class="card">
+      <h2 class="card-title">Dettagli</h2>
+      <p class="note"><strong>Viaggio:</strong> <span id="tripName">—</span> • <strong>Cliente:</strong> <span id="clientName">—</span> • <strong>Voto:</strong> <span id="scoreVal">—</span></p>
+      <p class="note">Il tuo feedback rimane privato: non viene pubblicato online.</p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Cosa non è andato bene?</h2>
+      <div class="field">
+        <label class="label" for="feedback">Scrivi in dettaglio</label>
+        <textarea id="feedback" class="textarea" placeholder="Descrivi i problemi riscontrati: organizzazione, struttura, trasporti, assistenza…"></textarea>
+      </div>
+      <div class="field" style="margin-top:10px">
+        <label class="label" for="contatto">Preferisci essere ricontattato?</label>
+        <input id="contatto" class="input" type="text" placeholder="Email o telefono (opzionale)">
+      </div>
+      <div class="actions">
+        <button id="sendBtn" class="btn btn-primary">Invia feedback</button>
+        <button id="backBtn" class="btn btn-outline">Torna alla recensione</button>
+      </div>
+      <div id="successBox" class="success" style="display:none;margin-top:12px">
+        Grazie! Il tuo feedback è stato registrato in modo privato. Il team lo analizzerà al più presto.
+      </div>
+    </section>
+  </div>
+
+  <script>
+    function params(){
+      const p=new URLSearchParams(location.search);
+      return {
+        score:parseInt(p.get("score")||"0",10),
+        trip:p.get("trip")||"—",
+        name:p.get("name")||"—"
+      }
+    }
+    function init(){
+      const d=params();
+      document.getElementById("tripName").textContent=d.trip;
+      document.getElementById("clientName").textContent=d.name;
+      document.getElementById("scoreVal").textContent=d.score;
+      document.getElementById("voteBadge").textContent="Voto: "+d.score;
+    }
+    function saveFeedback(){
+      const d=params();
+      const text=document.getElementById("feedback").value.trim();
+      const contact=document.getElementById("contatto").value.trim();
+      if(!text){alert("Inserisci il feedback.");return}
+      const item={
+        trip:d.trip,
+        name:d.name,
+        score:d.score,
+        text:text,
+        contact:contact,
+        ts:Date.now()
+      };
+      try{
+        const key="pf_feedbacks";
+        const arr=JSON.parse(localStorage.getItem(key)||"[]");
+        arr.push(item);
+        localStorage.setItem(key,JSON.stringify(arr));
+      }catch(e){}
+      document.getElementById("successBox").style.display="block";
+    }
+    document.addEventListener("DOMContentLoaded",function(){
+      init();
+      document.getElementById("sendBtn").addEventListener("click",saveFeedback);
+      document.getElementById("backBtn").addEventListener("click",function(){history.back()});
+    });
+  </script>
+</body>
+</html>

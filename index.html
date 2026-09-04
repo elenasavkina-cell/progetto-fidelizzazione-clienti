@@ -1,89 +1,384 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sistema Fidelizzazione Clienti</title>
+<meta charset="UTF-8">
+<title>Gestionale partecipanti</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#f4f7fb;color:#172033}
-header{background:linear-gradient(135deg,#102b62,#2868b2);color:#fff;padding:42px 22px}
-.wrap{max-width:1100px;margin:auto}.tag{display:inline-block;padding:6px 12px;border:1px solid #ffffff55;border-radius:999px;background:#ffffff16}
-h1{font-size:42px;margin:14px 0 10px}.lead{max-width:760px;font-size:18px;line-height:1.55;color:#eaf3ff}
-nav{background:#102b62;position:sticky;top:0;z-index:10}.nav{display:flex;gap:8px;flex-wrap:wrap;padding:10px 22px;max-width:1100px;margin:auto}
-nav a{color:white;text-decoration:none;padding:8px 12px;border-radius:999px}nav a:hover{background:#ffffff18}
-main{max-width:1100px;margin:auto;padding:32px 22px 70px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
-.card,.panel{background:#fff;border:1px solid #e5eaf1;border-radius:20px;padding:20px;box-shadow:0 8px 24px #1e355510}.card a{color:#174f99;font-weight:700;text-decoration:none}
-.demo{display:none}.demo:target{display:block}.home{display:block}body:has(.demo:target) .home{display:none}
-.btn{display:inline-block;border:0;border-radius:999px;padding:10px 16px;background:#4f46e5;color:white;text-decoration:none;cursor:pointer}.btn.alt{background:white;color:#374151;border:1px solid #cbd5e1}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.input{padding:10px 12px;border:1px solid #d1d5db;border-radius:12px;min-width:180px}
-.score button{width:44px;height:44px;border:0;border-radius:10px;margin:4px;background:#eef2ff;cursor:pointer}.score button.active{background:#4f46e5;color:white}
-.pill{display:inline-block;padding:7px 11px;background:#eef2ff;border-radius:999px;margin:4px}.note{font-size:13px;color:#667085}
-@media(max-width:650px){h1{font-size:34px}}
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 24px;
+}
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+h1 {
+  font-size: 1.8rem;
+  margin: 0 0 8px 0;
+}
+h2 {
+  font-size: 1.2rem;
+  margin: 0;
+}
+.subtitle {
+  font-size: 0.9rem;
+  color: #555555;
+  margin-bottom: 20px;
+}
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+button {
+  cursor: pointer;
+}
+.btn {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  border: 1px solid transparent;
+}
+.btn-primary {
+  background-color: #0044cc;
+  color: #ffffff;
+}
+.btn-secondary {
+  background-color: #ffffff;
+  color: #0044cc;
+  border-color: #0044cc;
+}
+.btn-danger {
+  background-color: #cc0000;
+  color: #ffffff;
+}
+.btn + .btn {
+  margin-left: 4px;
+}
+form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+label {
+  font-size: 0.9rem;
+}
+input[type="text"] {
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid #cccccc;
+  min-width: 220px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+}
+thead {
+  background-color: #f0f2f5;
+}
+th,
+td {
+  border: 1px solid #dddddd;
+  padding: 8px;
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+th {
+  text-align: left;
+}
+tr:nth-child(even) tbody tr {
+  background-color: #f9f9f9;
+}
+.nome-confermato {
+  color: #003399;
+  font-weight: 600;
+}
+.nome-da-contabilizzare {
+  color: #cc0000;
+  font-weight: 600;
+}
+.nome-preso-in-carico {
+  color: #cc6600;
+  font-weight: 600;
+}
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+.status-confermato {
+  background-color: #0044cc;
+  color: #ffffff;
+}
+.status-da-contabilizzare {
+  background-color: #ffcccc;
+  color: #660000;
+}
+.status-preso-in-carico {
+  background-color: #ffdd99;
+  color: #663300;
+}
+.nota {
+  font-size: 0.85rem;
+}
+.legend {
+  font-size: 0.8rem;
+  color: #555555;
+  margin-top: 12px;
+}
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 12px;
+}
+.legend-color {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  margin-right: 4px;
+}
+.legend-confermato {
+  background-color: #0044cc;
+}
+.legend-da-contabilizzare {
+  background-color: #ffcccc;
+  border: 1px solid #660000;
+}
+.legend-preso-in-carico {
+  background-color: #ffdd99;
+  border: 1px solid #663300;
+}
+@media (max-width: 640px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  form {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  input[type="text"] {
+    width: 100%;
+  }
+  input[type="file"] {
+    width: 100%;
+  }
+}
+@media print {
+  body {
+    background-color: #ffffff;
+    padding: 0;
+  }
+  .container {
+    box-shadow: none;
+    margin: 0;
+    padding: 0;
+    max-width: none;
+  }
+  form,
+  .toolbar,
+  .btn,
+  th:last-child,
+  td:last-child {
+    display: none;
+  }
+}
 </style>
 </head>
 <body>
-<header><div class="wrap"><span class="tag">PROTOTIPO / DEMO</span><h1>Sistema Fidelizzazione Clienti</h1>
-<p class="lead">Demo navigabile del flusso post-viaggio: recensioni, feedback privato, punti, referral, lotteria, lista regalo, buoni regalo e area operatore.</p></div></header>
-<nav><div class="nav">
-<a href="#">Home</a><a href="#recensione">Recensione</a><a href="#punti">Punti</a><a href="#lotteria">Lotteria</a><a href="#lista">Lista regalo</a><a href="#buono">Buono regalo</a><a href="#operatore">Operatore</a><a href="#documentazione">Documentazione</a>
-</div></nav>
-<main>
-<section class="home">
-<h2>Funzionalità</h2><div class="grid">
-<div class="card"><h3>⭐ Recensioni</h3><p>Valutazione da 1 a 10 con percorso differenziato.</p><a href="#recensione">Apri →</a></div>
-<div class="card"><h3>💬 Feedback privato</h3><p>Gestione riservata delle esperienze negative.</p><a href="#feedback">Apri →</a></div>
-<div class="card"><h3>🎁 Punti fedeltà</h3><p>Saldo, scadenza, crociere completate e offerte.</p><a href="#punti">Apri →</a></div>
-<div class="card"><h3>🎟 Lotteria</h3><p>Iniziativa dedicata ai clienti storici.</p><a href="#lotteria">Apri →</a></div>
-<div class="card"><h3>🎁 Lista regalo</h3><p>Partecipazioni, quota e ricevuta.</p><a href="#lista">Apri →</a></div>
-<div class="card"><h3>💳 Buono regalo</h3><p>Valore, destinatario e grafica del voucher.</p><a href="#buono">Apri →</a></div>
-<div class="card"><h3>⚙️ Area operatore</h3><p>Parametri del programma e configurazioni.</p><a href="#operatore">Apri →</a></div>
-<div class="card"><h3>📄 Documentazione</h3><p>Logica e flusso del progetto.</p><a href="#documentazione">Apri →</a></div>
-</div></section>
-
-<section id="recensione" class="demo panel"><h2>Lascia la tua recensione</h2><p>Grazie per aver viaggiato con noi. Il tuo parere conta.</p>
-<div class="score" id="scores"></div><p class="note">1 = pessima, 10 = eccezionale.</p><button class="btn" onclick="continua()">Continua</button></section>
-
-<section id="feedback" class="demo panel"><h2>Feedback privato</h2><p>Raccontaci cosa non ha funzionato. Il feedback rimane privato e non viene pubblicato online.</p>
-<textarea class="input" style="width:100%;min-height:130px" placeholder="Descrivi organizzazione, struttura, trasporti, assistenza…"></textarea>
-<div class="row" style="margin-top:12px"><button class="btn" onclick="alert('Demo: feedback registrato')">Invia feedback</button><a class="btn alt" href="#recensione">Torna alla recensione</a></div></section>
-
-<section id="positiva" class="demo panel"><h2>Grazie per il tuo voto!</h2><p>Puoi proseguire con una recensione pubblica e accumulare punti.</p>
-<div class="row"><a class="btn" target="_blank" href="https://www.google.com/maps">Google ★★★★★</a><a class="btn" target="_blank" href="https://www.facebook.com">Facebook ★★★★★</a><a class="btn alt" href="#punti" onclick="aggiungiPunti(50)">Vai ai punti</a></div></section>
-
-<section id="punti" class="demo panel"><h2>Area punti</h2><div class="row"><span class="pill">Punti: <strong id="pts">0</strong></span><span class="pill">Crociere completate: <strong id="trips">0</strong></span><span class="pill">Scadenza: 12 mesi</span></div>
-<p><button class="btn alt" onclick="viaggio()">Segna crociera completata</button></p><h3>Offerte dedicate</h3><p>Sconto dedicato al raggiungimento della soglia punti.</p></section>
-
-<section id="lotteria" class="demo panel"><h2>Vinci una crociera</h2><p>Lotteria dimostrativa riservata ai clienti storici.</p>
-<p><span class="pill">Biglietti: <strong id="tickets">0</strong></span></p><button class="btn" onclick="biglietto()">Genera biglietto</button></section>
-
-<section id="lista" class="demo panel"><h2>Lista Regalo</h2><p>Invia la tua partecipazione.</p>
-<div class="row"><input class="input" placeholder="Nome"><input class="input" placeholder="Cognome"><input class="input" type="number" placeholder="Quota €"><input class="input" type="file"></div>
-<p><button class="btn" onclick="alert('Demo: partecipazione inviata')">Invia partecipazione</button></p></section>
-
-<section id="buono" class="demo panel"><h2>Acquista Buono Regalo</h2><p>1) Scegli la grafica • 2) Inserisci i dati • 3) Paga • 4) Scarica</p>
-<div class="row"><input class="input" id="valore" type="number" placeholder="Valore €"><input class="input" id="dest" placeholder="Destinatario"><input class="input" placeholder="Messaggio"></div>
-<p><button class="btn" onclick="voucher()">Procedi al pagamento</button></p><div id="voucherMsg"></div></section>
-
-<section id="operatore" class="demo panel"><h2>Gestione Operatore</h2><div class="grid">
-<div class="card"><h3>Parametri lotteria</h3><input class="input" type="number" value="3"><p class="note">Requisito crociere.</p></div>
-<div class="card"><h3>Programma fedeltà</h3><input class="input" type="number" value="10"><p class="note">Sconto percentuale.</p></div>
-</div><p><button class="btn" onclick="alert('Demo: parametri salvati')">Salva parametri</button></p></section>
-
-<section id="documentazione" class="demo panel"><h2>Documentazione del progetto</h2>
-<p><strong>Flusso:</strong> cliente rientra dal viaggio → riceve un link via Email/WhatsApp → lascia un voto da 1 a 10.</p>
-<p><strong>Voto 0–6:</strong> feedback privato, senza pubblicazione online.</p>
-<p><strong>Voto 7–10:</strong> invito alla recensione pubblica, condivisione e accredito punti.</p>
-<p>Il progetto include inoltre area punti, offerte dedicate, lista regalo, buoni regalo, lotteria per clienti storici e configurazioni operatore.</p>
-<p class="note">Questa versione è una demo statica: i dati sono salvati nel browser e non sono collegati a un database reale.</p></section>
-</main>
+<div class="container">
+<h1>Gestionale partecipanti</h1>
+<p class="subtitle">Lista pubblica per i clienti: verifica stato e inoltro copia contabile.</p>
+<div class="toolbar">
+<h2>Lista partecipanti</h2>
+<button type="button" class="btn btn-primary" onclick="window.print()">Esporta in PDF</button>
+</div>
+<form id="add-participant-form">
+<div style="display:flex; flex-direction:column; gap:4px;">
+  <label for="nome-partecipante">Nome partecipante</label>
+  <input type="text" id="nome-partecipante" autocomplete="off" required>
+</div>
+<div style="display:flex; flex-direction:column; gap:4px;">
+  <label for="copia-contabile">Copia contabile (Bonifico)</label>
+  <input type="file" id="copia-contabile" accept="application/pdf,image/*">
+</div>
+<button type="submit" class="btn btn-secondary" style="margin-top: 20px;">Invia dati e copia contabile</button>
+</form>
+<table>
+<thead>
+<tr>
+<th>Nome</th>
+<th>Stato</th>
+<th>Nota</th>
+<th>Azioni</th>
+</tr>
+</thead>
+<tbody id="partecipanti-body"></tbody>
+</table>
+<div class="legend">
+<span><span class="legend-color legend-confermato"></span>Confermato (blu intenso) – pronto per PDF</span>
+<span><span class="legend-color legend-da-contabilizzare"></span>Nuovo bonifico (rosso chiaro) – Da contabilizzare</span>
+<span><span class="legend-color legend-preso-in-carico"></span>Bonifico preso in carico</span>
+</div>
+</div>
 <script>
-let selected=0;
-const scores=document.getElementById('scores');
-for(let i=1;i<=10;i++){const b=document.createElement('button');b.textContent=i;b.onclick=()=>{selected=i;[...scores.children].forEach(x=>x.classList.remove('active'));b.classList.add('active')};scores.appendChild(b)}
-function continua(){if(!selected)return alert('Seleziona un voto');location.hash=selected<=6?'feedback':'positiva';if(selected>6)aggiungiPunti(50)}
-function getPts(){return +(localStorage.getItem('pf_points')||0)}function aggiungiPunti(n){localStorage.setItem('pf_points',getPts()+n);render()}
-function viaggio(){localStorage.setItem('pf_trips',+(localStorage.getItem('pf_trips')||0)+1);aggiungiPunti(100);render()}
-function biglietto(){localStorage.setItem('pf_tickets',+(localStorage.getItem('pf_tickets')||0)+1);render()}
-function voucher(){const v=document.getElementById('valore').value,d=document.getElementById('dest').value;if(!v||!d)return alert('Inserisci valore e destinatario');document.getElementById('voucherMsg').innerHTML='<span class="pill">Buono DEMO-'+Math.floor(Math.random()*9000+1000)+' creato per '+d+' • €'+v+'</span>';aggiungiPunti(30)}
-function render(){document.getElementById('pts').textContent=getPts();document.getElementById('trips').textContent=localStorage.getItem('pf_trips')||0;document.getElementById('tickets').textContent=localStorage.getItem('pf_tickets')||0}render();
-</script></body></html>
+const STATUS = {
+  CONFIRMATO: "CONFIRMATO",
+  DA_CONTABILIZZARE: "DA_CONTABILIZZARE",
+  PRESO_IN_CARICO: "PRESO_IN_CARICO"
+};
+let partecipanti = [
+  { id: 1, nome: "Mario Rossi", status: STATUS.CONFIRMATO },
+  { id: 2, nome: "Anna Bianchi", status: STATUS.CONFIRMATO },
+  { id: 3, nome: "Luca Verdi", status: STATUS.DA_CONTABILIZZARE }
+];
+function getNomeClass(status) {
+  if (status === STATUS.CONFIRMATO) {
+    return "nome-confermato";
+  }
+  if (status === STATUS.DA_CONTABILIZZARE) {
+    return "nome-da-contabilizzare";
+  }
+  if (status === STATUS.PRESO_IN_CARICO) {
+    return "nome-preso-in-carico";
+  }
+  return "";
+}
+function getStatusBadgeClass(status) {
+  if (status === STATUS.CONFERMATO) {
+    return "status-badge status-confermato";
+  }
+  if (status === STATUS.DA_CONTABILIZZARE) {
+    return "status-badge status-da-contabilizzare";
+  }
+  if (status === STATUS.PRESO_IN_CARICO) {
+    return "status-badge status-preso-in-carico";
+  }
+  return "status-badge";
+}
+function getStatusLabel(status) {
+  if (status === STATUS.CONFERMATO) {
+    return "Confermato";
+  }
+  if (status === STATUS.DA_CONTABILIZZARE) {
+    return "Da contabilizzare";
+  }
+  if (status === STATUS.PRESO_IN_CARICO) {
+    return "Preso in carico";
+  }
+  return "";
+}
+function getNota(status) {
+  if (status === STATUS.DA_CONTABILIZZARE) {
+    return "Da contabilizzare";
+  }
+  if (status === STATUS.PRESO_IN_CARICO) {
+    return "Il bonifico è stato preso in carico";
+  }
+  return "";
+}
+function aggiornaStato(id, nuovoStato) {
+  partecipanti = partecipanti.map(function (p) {
+    if (p.id === id) {
+      return { id: p.id, nome: p.nome, status: nuovoStato };
+    }
+    return p;
+  });
+  renderPartecipanti();
+}
+function renderPartecipanti() {
+  const tbody = document.getElementById("partecipanti-body");
+  tbody.innerHTML = "";
+  partecipanti.forEach(function (p) {
+    const tr = document.createElement("tr");
+    const tdNome = document.createElement("td");
+    tdNome.textContent = p.nome;
+    tdNome.className = getNomeClass(p.status);
+    const tdStato = document.createElement("td");
+    const spanStato = document.createElement("span");
+    spanStato.className = getStatusBadgeClass(p.status);
+    spanStato.textContent = getStatusLabel(p.status);
+    tdStato.appendChild(spanStato);
+    const tdNota = document.createElement("td");
+    tdNota.textContent = getNota(p.status);
+    tdNota.className = "nota";
+    const tdAzioni = document.createElement("td");
+    if (p.status === STATUS.DA_CONTABILIZZARE) {
+      const btnPresoInCarico = document.createElement("button");
+      btnPresoInCarico.type = "button";
+      btnPresoInCarico.className = "btn btn-secondary";
+      btnPresoInCarico.textContent = "Segna preso in carico";
+      btnPresoInCarico.onclick = function () {
+        aggiornaStato(p.id, STATUS.PRESO_IN_CARICO);
+      };
+      const btnConferma = document.createElement("button");
+      btnConferma.type = "button";
+      btnConferma.className = "btn btn-primary";
+      btnConferma.textContent = "Conferma bonifico";
+      btnConferma.onclick = function () {
+        aggiornaStato(p.id, STATUS.CONFERMATO);
+      };
+      tdAzioni.appendChild(btnPresoInCarico);
+      tdAzioni.appendChild(btnConferma);
+    } else if (p.status === STATUS.PRESO_IN_CARICO) {
+      const btnConferma = document.createElement("button");
+      btnConferma.type = "button";
+      btnConferma.className = "btn btn-primary";
+      btnConferma.textContent = "Conferma bonifico";
+      btnConferma.onclick = function () {
+        aggiornaStato(p.id, STATUS.CONFERMATO);
+      };
+      tdAzioni.appendChild(btnConferma);
+    }
+    tr.appendChild(tdNome);
+    tr.appendChild(tdStato);
+    tr.appendChild(tdNota);
+    tr.appendChild(tdAzioni);
+    tbody.appendChild(tr);
+  });
+}
+function inizializzaForm() {
+  const form = document.getElementById("add-participant-form");
+  const inputNome = document.getElementById("nome-partecipante");
+  const inputFile = document.getElementById("copia-contabile");
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    const nome = inputNome.value.trim();
+    if (!nome) {
+      return;
+    }
+    const file = inputFile.files[0];
+    const nuovo = {
+      id: Date.now(),
+      nome: nome,
+      status: STATUS.DA_CONTABILIZZARE
+    };
+    partecipanti.push(nuovo);
+    inputNome.value = "";
+    inputFile.value = "";
+    inputNome.focus();
+    renderPartecipanti();
+    if (file) {
+      alert("Partecipante aggiunto e copia contabile inviata con successo!");
+    }
+  });
+}
+inizializzaForm();
+renderPartecipanti();
+</script>
+</body>
+</html>

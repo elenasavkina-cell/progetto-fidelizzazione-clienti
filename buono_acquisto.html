@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <title>Acquista Buono Regalo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(135deg,#1f3c88,#4e9af1);color:#132743}
+    .container{max-width:900px;margin:40px auto;padding:24px;background:#f7f9fc;border-radius:22px;box-shadow:0 20px 44px rgba(0,0,0,.20)}
+    .title{margin:0 0 8px;font-size:28px;letter-spacing:.04em;text-transform:uppercase;color:#1f3c88}
+    .subtitle{margin:4px 0 0;font-size:14px;color:#4b5b82}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
+    .card{background:#fff;border-radius:18px;padding:16px;box-shadow:0 12px 28px rgba(15,23,42,.10);cursor:pointer;border:2px solid transparent}
+    .card.active{border-color:#4f46e5}
+    .preview{height:120px;border-radius:12px;margin-bottom:10px}
+    .prev-a{background:linear-gradient(135deg,#1f3c88,#4e9af1)}
+    .prev-b{background:linear-gradient(135deg,#0ea5e9,#22d3ee)}
+    .prev-c{background:linear-gradient(135deg,#9333ea,#f472b6)}
+    .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+    .col{flex:1;min-width:220px;display:flex;flex-direction:column;gap:6px}
+    .input{padding:10px 12px;border-radius:12px;border:1px solid #d1d5db;font-size:14px;background:#fff}
+    .btn{border:none;border-radius:999px;padding:10px 16px;font-size:14px;cursor:pointer}
+    .btn-primary{background:#4f46e5;color:#fff;box-shadow:0 12px 26px rgba(79,70,229,.35)}
+    .btn-outline{background:#fff;color:#374151;border:1px solid #cbd5e1}
+    .note{font-size:12px;color:#6b7280}
+    .warn{font-size:12px;color:#b45309}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">Acquista Buono Regalo</h1>
+    <p class="subtitle">1) Scegli la grafica • 2) Inserisci i dati • 3) Paga • 4) Scarica</p>
+
+    <div id="themeGrid" class="grid">
+      <div class="card" data-theme="a">
+        <div class="preview prev-a"></div>
+        <strong>Classico Blu</strong>
+        <div class="note">Elegante e professionale</div>
+      </div>
+      <div class="card" data-theme="b">
+        <div class="preview prev-b"></div>
+        <strong>Oceano</strong>
+        <div class="note">Toni azzurri e freschi</div>
+      </div>
+      <div class="card" data-theme="c">
+        <div class="preview prev-c"></div>
+        <strong>Celebration</strong>
+        <div class="note">Colori vivaci per feste</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <label>Valore (€)</label>
+        <input id="amount" class="input" type="number" min="0" step="10" placeholder="Es. 100">
+      </div>
+      <div class="col">
+        <label>Destinatario (nome)</label>
+        <input id="name" class="input" type="text" placeholder="Es. Maria Rossi">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <label>Messaggio sul buono</label>
+        <textarea id="message" class="input" rows="3" placeholder="Scrivi un messaggio personalizzato"></textarea>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <label>Email destinatario (facoltativo)</label>
+        <input id="email" class="input" type="email" placeholder="email@dominio.it">
+      </div>
+      <div class="col">
+        <label>Telefono (facoltativo)</label>
+        <input id="phone" class="input" type="tel" placeholder="Es. 3931234567">
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:12px">
+      <button id="payBtn" class="btn btn-primary">Procedi al pagamento</button>
+      <span class="note">Pagamento simulato: il buono verrà segnato come pagato e scaricabile.</span>
+    </div>
+    <div id="msg" class="warn" style="margin-top:10px"></div>
+  </div>
+
+  <script>
+    function getVouchers(){try{return JSON.parse(localStorage.getItem('pf_vouchers')||'[]')}catch(e){return []}}
+    function setVouchers(a){localStorage.setItem('pf_vouchers',JSON.stringify(a))}
+    function awardPoints(n){
+      try{
+        const pts=parseInt(localStorage.getItem('pf_points')||'0',10)+n;
+        localStorage.setItem('pf_points',String(pts));
+        const life=parseInt(localStorage.getItem('pf_pointsLifetime')||'0',10)+n;
+        localStorage.setItem('pf_pointsLifetime',String(life));
+      }catch(e){}
+    }
+    function genCode(len){
+      const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let s='';for(let i=0;i<len;i++){s+=chars[Math.floor(Math.random()*chars.length)]}
+      return s;
+    }
+    function selectThemeCard(el){
+      document.querySelectorAll('.card').forEach(c=>c.classList.remove('active'));
+      el.classList.add('active');
+    }
+    function currentTheme(){
+      const a=document.querySelector('.card.active');
+      return a?a.getAttribute('data-theme'):'a';
+    }
+    function pay(){
+      const amount=parseFloat(document.getElementById('amount').value||'0');
+      const name=(document.getElementById('name').value||'').trim();
+      const message=(document.getElementById('message').value||'').trim();
+      const email=(document.getElementById('email').value||'').trim();
+      const phone=(document.getElementById('phone').value||'').trim();
+      const box=document.getElementById('msg');
+      if(!amount||amount<=0||!name){
+        box.textContent='Inserisci un valore valido e il destinatario.';
+        return;
+      }
+      const code=genCode(8);
+      const v={id:String(Math.floor(100000+Math.random()*899999)),code,amount,name,message,email,phone,paid:true,paidTs:Date.now(),ts:Date.now(),theme:currentTheme(),redeemed:false};
+      const arr=getVouchers();arr.push(v);setVouchers(arr);
+      awardPoints(30);
+      location.href='buono.html?id='+encodeURIComponent(v.id);
+    }
+    document.addEventListener('DOMContentLoaded',function(){
+      document.querySelectorAll('.card').forEach(c=>{
+        c.addEventListener('click',()=>selectThemeCard(c));
+      });
+      selectThemeCard(document.querySelector('.card[data-theme="a"]'));
+      document.getElementById('payBtn').addEventListener('click',pay);
+    });
+  </script>
+</body>
+</html>

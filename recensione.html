@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <title>Lascia una recensione</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(135deg,#1f3c88,#4e9af1);color:#132743}
+    .container{max-width:900px;margin:40px auto;padding:24px;background:#f7f9fc;border-radius:22px;box-shadow:0 20px 44px rgba(0,0,0,.20)}
+    .header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+    .title{margin:0;font-size:28px;letter-spacing:.04em;text-transform:uppercase;color:#1f3c88}
+    .subtitle{margin:4px 0 0;font-size:14px;color:#4b5b82}
+    .card{background:#fff;border-radius:18px;padding:18px 20px 20px;box-shadow:0 12px 28px rgba(15,23,42,.10);margin-bottom:16px}
+    .card-title{font-size:18px;font-weight:600;color:#1f2937;margin:0 0 10px}
+    .grid{display:grid;grid-template-columns:1fr;gap:14px}
+    .score-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:8px;margin-top:8px}
+    .score-btn{border:none;border-radius:12px;padding:14px 0;font-size:16px;cursor:pointer;background:#eef2ff;color:#1f2937;box-shadow:0 6px 14px rgba(79,70,229,.20);transition:.15s}
+    .score-btn:hover{background:#e0e7ff}
+    .score-btn.active{background:#4f46e5;color:#fff}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+    .btn{border:none;border-radius:999px;padding:10px 16px;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+    .btn-primary{background:#4f46e5;color:#e5e7eb;box-shadow:0 12px 26px rgba(79,70,229,.35)}
+    .btn-primary[disabled]{opacity:.5;cursor:not-allowed}
+    .btn-outline{background:#fff;color:#374151;border:1px solid #cbd5e1}
+    .badge{padding:6px 12px;font-size:12px;border-radius:999px;background:rgba(79,209,197,.12);color:#0f766e;border:1px solid rgba(79,209,197,.4)}
+    .info{font-size:12px;color:#6b7280}
+    .trip{display:flex;gap:10px;align-items:center;color:#374151}
+    .trip span{display:inline-block;padding:6px 10px;border-radius:999px;background:#e5e7eb;font-size:12px}
+    @media (max-width:640px){
+      .score-grid{grid-template-columns:repeat(5,1fr)}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1 class="title">Lascia la tua recensione</h1>
+        <p class="subtitle">Grazie per aver viaggiato con noi. Il tuo parere conta!</p>
+      </div>
+      <span class="badge">Post‑viaggio</span>
+    </div>
+
+    <section class="card">
+      <h2 class="card-title">Il tuo viaggio</h2>
+      <div class="trip" id="tripInfo">
+        <span id="tripName">Viaggio</span>
+        <span id="travelerName">Cliente</span>
+        <span id="tripDate">Data</span>
+      </div>
+      <p class="info">Queste informazioni vengono dal link che hai ricevuto via Email/WhatsApp.</p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Valuta l’esperienza (da 1 a 10)</h2>
+      <div class="score-grid" id="scoreGrid"></div>
+      <div class="actions">
+        <button id="submitBtn" class="btn btn-primary" disabled>Continua</button>
+        <button id="shareBtn" class="btn btn-outline">Invia a un compagno di viaggio</button>
+      </div>
+      <p class="info">Seleziona un numero: 1 = pessima, 10 = eccezionale.</p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Cosa succede dopo?</h2>
+      <ul class="info">
+        <li>Voto 0–6 → apriamo una pagina di feedback privato (non pubblico).</li>
+        <li>Voto 7–10 → ti proponiamo di recensire su Google/Facebook e di condividere con gli amici.</li>
+        <li>I punti vengono accreditati automaticamente: al cliente e agli amici invitati.</li>
+      </ul>
+    </section>
+  </div>
+
+  <script>
+    function getParams(){
+      const p=new URLSearchParams(window.location.search);
+      return {
+        name:p.get("name")||"Cliente",
+        trip:p.get("trip")||"Viaggio",
+        date:p.get("date")||"Data"
+      }
+    }
+    function setTrip(){
+      const t=getParams();
+      document.getElementById("tripName").textContent=t.trip;
+      document.getElementById("travelerName").textContent=t.name;
+      document.getElementById("tripDate").textContent=t.date;
+    }
+    function getPoints(){return parseInt(localStorage.getItem("pf_points")||"0",10)}
+    function setPoints(v){localStorage.setItem("pf_points",String(v))}
+    function checkCap(){
+      const cap=parseInt(localStorage.getItem("pf_pointsCap")||"200",10);
+      const pts=getPoints();
+      if(pts>=cap){
+        const discCount=parseInt(localStorage.getItem("pf_discounts")||"0",10);
+        localStorage.setItem("pf_discounts",String(discCount+1));
+        localStorage.setItem("pf_lastDiscount",String(Date.now()));
+        setPoints(0);
+      }
+    }
+    function awardTravelIfParam(){
+      const p=new URLSearchParams(location.search);
+      if(p.get("travel")==="1"){
+        const travelPts=parseInt(localStorage.getItem("pf_travelPts")||"100",10);
+        const trips=parseInt(localStorage.getItem("pf_trips")||"0",10)+1;
+        localStorage.setItem("pf_trips",String(trips));
+        setPoints(getPoints()+travelPts);
+        try{
+          const life=parseInt(localStorage.getItem("pf_pointsLifetime")||"0",10)+travelPts;
+          localStorage.setItem("pf_pointsLifetime",String(life));
+        }catch(e){}
+        checkCap();
+      }
+    }
+    function buildScores(){
+      const g=document.getElementById("scoreGrid");
+      for(let i=1;i<=10;i++){
+        const b=document.createElement("button");
+        b.type="button";
+        b.className="score-btn";
+        b.textContent=i;
+        b.dataset.val=i;
+        b.addEventListener("click",function(){
+          document.querySelectorAll(".score-btn").forEach(x=>x.classList.remove("active"));
+          b.classList.add("active");
+          document.getElementById("submitBtn").disabled=false;
+          window.selectedScore=i;
+        });
+        g.appendChild(b);
+      }
+    }
+    function shareToCompanion(){
+      const p=getParams();
+      const base=window.location.origin+window.location.pathname;
+      const shareURL=base+"?trip="+encodeURIComponent(p.trip)+"&date="+encodeURIComponent(p.date);
+      const msg="Ciao! Lascia la tua recensione per il viaggio '"+p.trip+"': "+shareURL;
+      const wa="https://wa.me/?text="+encodeURIComponent(msg);
+      window.open(wa,"_blank");
+    }
+    function onSubmit(){
+      const p=getParams();
+      const s=window.selectedScore||0;
+      try{
+        const arr=JSON.parse(localStorage.getItem("pf_contacts")||"[]");
+        const id=String(Math.floor(100000+Math.random()*899999));
+        arr.push({id:id,name:p.name,phone:"",email:"",groups:["Recensioni"]});
+        localStorage.setItem("pf_contacts",JSON.stringify(arr));
+      }catch(e){}
+      if(s<=6){
+        window.location.href="feedback_privato.html?score="+s+"&trip="+encodeURIComponent(p.trip)+"&name="+encodeURIComponent(p.name);
+      }else{
+        window.location.href="recensione_positiva.html?score="+s+"&trip="+encodeURIComponent(p.trip)+"&name="+encodeURIComponent(p.name);
+      }
+    }
+    document.addEventListener("DOMContentLoaded",function(){
+      setTrip();
+      awardTravelIfParam();
+      buildScores();
+      document.getElementById("submitBtn").addEventListener("click",onSubmit);
+      document.getElementById("shareBtn").addEventListener("click",shareToCompanion);
+    });
+  </script>
+</body>
+</html>

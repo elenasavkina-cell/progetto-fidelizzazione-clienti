@@ -14,14 +14,14 @@
     .card{background:#fff;border-radius:18px;padding:18px 20px 20px;box-shadow:0 12px 28px rgba(15,23,42,.10);margin-bottom:16px}
     .card-title{font-size:18px;font-weight:600;color:#1f2937;margin:0 0 10px}
     .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
-    .btn{border:none;border-radius:999px;padding:10px 16px;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+    .btn{border:none;border-radius:999px;padding:10px 16px;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
     .btn-primary{background:#4f46e5;color:#fff;box-shadow:0 12px 26px rgba(79,70,229,.35)}
     .btn-google{background:#ea4335;color:#fff}
     .btn-facebook{background:#1877f2;color:#fff}
     .btn-outline{background:#fff;color:#374151;border:1px solid #cbd5e1}
     .success{background:#eef2ff;color:#1f2937;border:1px solid #c7d2fe;padding:12px;border-radius:12px}
-    .note{font-size:12px;color:#6b7280;line-height:1.55}
-    .message{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px;white-space:pre-line;font-size:13px;line-height:1.55;color:#334155}
+    .note{font-size:12px;color:#6b7280}
+    .points{display:flex;gap:8px;align-items:center}
     .pill{display:inline-block;padding:6px 12px;border-radius:999px;background:#e5e7eb;font-size:12px}
   </style>
 </head>
@@ -30,48 +30,37 @@
     <div class="header">
       <div>
         <h1 class="title">Grazie per il tuo voto!</h1>
-        <p class="subtitle">La tua opinione è importante per Equestre Tour.</p>
+        <p class="subtitle">Aiutaci a far sapere com’è andata.</p>
       </div>
       <span id="voteBadge" class="subtitle"></span>
     </div>
 
     <section class="card">
-      <h2 class="card-title">Lascia una recensione pubblica</h2>
-      <p class="note">Se ti fa piacere, puoi raccontare la tua esperienza su Facebook oppure Google.</p>
+      <h2 class="card-title">Condividi la tua recensione</h2>
+      <p class="note">Scegli dove scrivere la recensione pubblica:</p>
       <div class="actions">
-        <a id="googleBtn" class="btn btn-google" target="_blank" rel="noopener" href="https://g.page/r/CYF7--FCps6aEAg/review">Scrivi su Google ★★★★★</a>
-        <a id="fbBtn" class="btn btn-facebook" target="_blank" rel="noopener" href="https://www.facebook.com/EquestreTourViaggi/reviews?locale=it_IT">Scrivi su Facebook ★★★★★</a>
+        <a id="googleBtn" class="btn btn-google" target="_blank" href="#">Scrivi su Google ★★★★★</a>
+        <a id="fbBtn" class="btn btn-facebook" target="_blank" href="#">Scrivi su Facebook ★★★★★</a>
       </div>
-      <p class="note" style="margin-top:8px">I punti vengono accreditati secondo le regole del programma fedeltà. Lo sconto non nasce dalla singola recensione: si attiva solo al raggiungimento della soglia prevista.</p>
+      <p class="note" style="margin-top:8px">Dopo aver pubblicato, torna qui per vedere i tuoi punti.</p>
     </section>
 
     <section class="card">
-      <h2 class="card-title">Messaggio recensione</h2>
-      <div class="message">Buongiorno gentile cliente da Equestre Tour!
-La sua opinione è importante per noi.
-
-Le saremmo grati se riuscisse a spendere due parole in una recensione sulla nostra pagina social Facebook.
-
-Facebook:
-https://www.facebook.com/EquestreTourViaggi/reviews?locale=it_IT
-
-Google:
-https://g.page/r/CYF7--FCps6aEAg/review</div>
-    </section>
-
-    <section class="card">
-      <h2 class="card-title">Condividi la stessa richiesta</h2>
-      <p class="note">Puoi inoltrare la richiesta a un amico, parente o compagno di viaggio. Quando la recensione viene effettivamente completata e validata, potranno maturare punti secondo le regole del programma fedeltà.</p>
+      <h2 class="card-title">Invita i compagni di viaggio</h2>
+      <p class="note">Condividi il link della recensione. Consigliato: solo compagni di viaggio.</p>
       <div class="actions">
         <button id="shareBtn" class="btn btn-outline">Condividi su WhatsApp</button>
+        <button id="refBtn" class="btn btn-outline">Amico confermato</button>
         <button id="pointsBtn" class="btn btn-primary">Vai alla tua area punti</button>
       </div>
-      <div id="pointsBox" class="success" style="display:none;margin-top:12px"></div>
+      <div id="pointsBox" class="success" style="display:none;margin-top:12px">
+        Punti accreditati! <span class="pill" id="pointsVal">+50</span> per la recensione positiva.
+      </div>
     </section>
   </div>
 
   <script>
-    const CFG={POINTS_CAP:200,REVIEW_POINTS:50};
+    const CFG={POINTS_CAP:200,REVIEW_POINTS:50,SHARE_POINTS:20,REFERRAL_POINTS:30};
     function params(){
       const p=new URLSearchParams(location.search);
       return {
@@ -82,13 +71,6 @@ https://g.page/r/CYF7--FCps6aEAg/review</div>
     }
     function getPoints(){return parseInt(localStorage.getItem("pf_points")||"0",10)}
     function setPoints(v){localStorage.setItem("pf_points",String(v))}
-    function getLifetime(){return parseInt(localStorage.getItem("pf_pointsLifetime")||"0",10)}
-    function setLifetime(v){localStorage.setItem("pf_pointsLifetime",String(v))}
-    function showMessage(text){
-      const box=document.getElementById("pointsBox");
-      box.textContent=text;
-      box.style.display="block";
-    }
     function checkCap(){
       const pts=getPoints();
       if(pts>=CFG.POINTS_CAP){
@@ -96,26 +78,31 @@ https://g.page/r/CYF7--FCps6aEAg/review</div>
         localStorage.setItem("pf_discounts",String(discCount+1));
         localStorage.setItem("pf_lastDiscount",String(Date.now()));
         setPoints(0);
-        const percent=localStorage.getItem("pf_discPercent")||"10";
-        showMessage("Soglia punti raggiunta: sconto riservato del "+percent+"% attivato. Il saldo punti riparte da zero.");
-        return true;
+        const box=document.getElementById("pointsBox");
+        box.style.display="block";
       }
-      return false;
     }
-    function awardReview(){
-      const key="pf_review_awarded_"+location.search;
-      if(sessionStorage.getItem(key)) return;
-      setPoints(getPoints()+CFG.REVIEW_POINTS);
-      setLifetime(getLifetime()+CFG.REVIEW_POINTS);
-      sessionStorage.setItem(key,"1");
-      if(!checkCap()) showMessage("Punti accreditati per la recensione: +"+CFG.REVIEW_POINTS+". Continua ad accumularli per accedere alla scontistica riservata e, quando previsto, alla lotteria.");
+    function getLifetime(){return parseInt(localStorage.getItem("pf_pointsLifetime")||"0",10)}
+    function setLifetime(v){localStorage.setItem("pf_pointsLifetime",String(v))}
+    function award(base){
+      const next=getPoints()+base;
+      setPoints(next);
+      const life=getLifetime()+base;
+      setLifetime(life);
+      document.getElementById("pointsVal").textContent="+"+base;
+      document.getElementById("pointsBox").style.display="block";
+      checkCap();
     }
     function shareLink(){
       const d=params();
       const base=location.origin+location.pathname.replace("recensione_positiva.html","recensione.html");
       const url=base+"?trip="+encodeURIComponent(d.trip)+"&date="+encodeURIComponent(new Date().toLocaleDateString());
-      const msg="Ciao! Ho ricevuto questa richiesta di recensione da Equestre Tour. Se hai viaggiato con noi puoi lasciare anche tu la tua opinione qui: "+url;
+      const msg="Ho viaggiato con "+d.trip+" 😊 Lascia anche tu la recensione: "+url;
       window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
+      award(CFG.SHARE_POINTS);
+    }
+    function confirmReferral(){
+      award(CFG.REFERRAL_POINTS);
     }
     function goPoints(){
       const d=params();
@@ -124,11 +111,14 @@ https://g.page/r/CYF7--FCps6aEAg/review</div>
     function init(){
       const d=params();
       document.getElementById("voteBadge").textContent="Voto: "+d.score;
-      awardReview();
+      document.getElementById("googleBtn").href="https://g.page/r/CYF7--FCps6aEAg/review";
+      document.getElementById("fbBtn").href="https://www.facebook.com/EquestreTourViaggi/reviews?locale=it_IT";
+      award(CFG.REVIEW_POINTS);
     }
     document.addEventListener("DOMContentLoaded",function(){
       init();
       document.getElementById("shareBtn").addEventListener("click",shareLink);
+      document.getElementById("refBtn").addEventListener("click",confirmReferral);
       document.getElementById("pointsBtn").addEventListener("click",goPoints);
     });
   </script>

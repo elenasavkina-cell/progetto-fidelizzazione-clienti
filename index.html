@@ -1,384 +1,80 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<title>Gestionale partecipanti</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background-color: #f4f4f4;
-  margin: 0;
-  padding: 24px;
-}
-.container {
-  max-width: 1000px;
-  margin: 0 auto;
-  background-color: #ffffff;
-  padding: 24px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-h1 {
-  font-size: 1.8rem;
-  margin: 0 0 8px 0;
-}
-h2 {
-  font-size: 1.2rem;
-  margin: 0;
-}
-.subtitle {
-  font-size: 0.9rem;
-  color: #555555;
-  margin-bottom: 20px;
-}
-.toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-button {
-  cursor: pointer;
-}
-.btn {
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  border: 1px solid transparent;
-}
-.btn-primary {
-  background-color: #0044cc;
-  color: #ffffff;
-}
-.btn-secondary {
-  background-color: #ffffff;
-  color: #0044cc;
-  border-color: #0044cc;
-}
-.btn-danger {
-  background-color: #cc0000;
-  color: #ffffff;
-}
-.btn + .btn {
-  margin-left: 4px;
-}
-form {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-label {
-  font-size: 0.9rem;
-}
-input[type="text"] {
-  padding: 6px 8px;
-  border-radius: 4px;
-  border: 1px solid #cccccc;
-  min-width: 220px;
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background-color: #ffffff;
-}
-thead {
-  background-color: #f0f2f5;
-}
-th,
-td {
-  border: 1px solid #dddddd;
-  padding: 8px;
-  font-size: 0.9rem;
-  vertical-align: middle;
-}
-th {
-  text-align: left;
-}
-tr:nth-child(even) tbody tr {
-  background-color: #f9f9f9;
-}
-.nome-confermato {
-  color: #003399;
-  font-weight: 600;
-}
-.nome-da-contabilizzare {
-  color: #cc0000;
-  font-weight: 600;
-}
-.nome-preso-in-carico {
-  color: #cc6600;
-  font-weight: 600;
-}
-.status-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.8rem;
-}
-.status-confermato {
-  background-color: #0044cc;
-  color: #ffffff;
-}
-.status-da-contabilizzare {
-  background-color: #ffcccc;
-  color: #660000;
-}
-.status-preso-in-carico {
-  background-color: #ffdd99;
-  color: #663300;
-}
-.nota {
-  font-size: 0.85rem;
-}
-.legend {
-  font-size: 0.8rem;
-  color: #555555;
-  margin-top: 12px;
-}
-.legend span {
-  display: inline-flex;
-  align-items: center;
-  margin-right: 12px;
-}
-.legend-color {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-  margin-right: 4px;
-}
-.legend-confermato {
-  background-color: #0044cc;
-}
-.legend-da-contabilizzare {
-  background-color: #ffcccc;
-  border: 1px solid #660000;
-}
-.legend-preso-in-carico {
-  background-color: #ffdd99;
-  border: 1px solid #663300;
-}
-@media (max-width: 640px) {
-  .toolbar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  form {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  input[type="text"] {
-    width: 100%;
-  }
-  input[type="file"] {
-    width: 100%;
-  }
-}
-@media print {
-  body {
-    background-color: #ffffff;
-    padding: 0;
-  }
-  .container {
-    box-shadow: none;
-    margin: 0;
-    padding: 0;
-    max-width: none;
-  }
-  form,
-  .toolbar,
-  .btn,
-  th:last-child,
-  td:last-child {
-    display: none;
-  }
-}
-</style>
+  <meta charset="utf-8">
+  <title>Sistema Fidelizzazione Clienti</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f4f7fb;color:#172033}
+    .wrap{max-width:1100px;margin:auto;padding:48px 22px 70px}
+    .hero{background:linear-gradient(135deg,#102b62,#2868b2);color:#fff;padding:44px;border-radius:28px;box-shadow:0 20px 50px rgba(23,59,107,.18)}
+    .tag{display:inline-block;padding:7px 12px;border-radius:999px;background:#ffffff20;border:1px solid #ffffff40;font-size:13px}
+    h1{font-size:42px;line-height:1.05;margin:18px 0 12px}
+    .lead{max-width:760px;font-size:18px;line-height:1.55;color:#eef5ff}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:25px}
+    .btn{display:inline-block;text-decoration:none;padding:12px 18px;border-radius:999px;font-weight:700}
+    .primary{background:#fff;color:#173b6b}
+    section{margin-top:38px}
+    h2{font-size:26px;margin-bottom:14px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+    .card{background:#fff;border:1px solid #e5eaf1;border-radius:20px;padding:20px;box-shadow:0 8px 24px rgba(30,53,85,.06)}
+    .card h3{margin:4px 0 8px}
+    .card p{color:#667085;line-height:1.45;min-height:62px}
+    .card a{color:#174f99;font-weight:700;text-decoration:none}
+    .flow{background:#fff;border-radius:20px;padding:22px;border:1px solid #e5eaf1;line-height:1.8}
+    .steps{counter-reset:step;display:grid;gap:12px}
+    .step{background:#fff;border:1px solid #e5eaf1;border-radius:18px;padding:18px 18px 18px 58px;position:relative}
+    .step:before{counter-increment:step;content:counter(step);position:absolute;left:18px;top:17px;width:28px;height:28px;border-radius:50%;background:#1f3c88;color:#fff;display:grid;place-items:center;font-weight:700}
+    .note{font-size:13px;color:#667085;margin-top:30px}
+    @media (max-width:650px){h1{font-size:34px}.hero{padding:30px 24px}}
+  </style>
 </head>
 <body>
-<div class="container">
-<h1>Gestionale partecipanti</h1>
-<p class="subtitle">Lista pubblica per i clienti: verifica stato e inoltro copia contabile.</p>
-<div class="toolbar">
-<h2>Lista partecipanti</h2>
-<button type="button" class="btn btn-primary" onclick="window.print()">Esporta in PDF</button>
-</div>
-<form id="add-participant-form">
-<div style="display:flex; flex-direction:column; gap:4px;">
-  <label for="nome-partecipante">Nome partecipante</label>
-  <input type="text" id="nome-partecipante" autocomplete="off" required>
-</div>
-<div style="display:flex; flex-direction:column; gap:4px;">
-  <label for="copia-contabile">Copia contabile (Bonifico)</label>
-  <input type="file" id="copia-contabile" accept="application/pdf,image/*">
-</div>
-<button type="submit" class="btn btn-secondary" style="margin-top: 20px;">Invia dati e copia contabile</button>
-</form>
-<table>
-<thead>
-<tr>
-<th>Nome</th>
-<th>Stato</th>
-<th>Nota</th>
-<th>Azioni</th>
-</tr>
-</thead>
-<tbody id="partecipanti-body"></tbody>
-</table>
-<div class="legend">
-<span><span class="legend-color legend-confermato"></span>Confermato (blu intenso) – pronto per PDF</span>
-<span><span class="legend-color legend-da-contabilizzare"></span>Nuovo bonifico (rosso chiaro) – Da contabilizzare</span>
-<span><span class="legend-color legend-preso-in-carico"></span>Bonifico preso in carico</span>
-</div>
-</div>
-<script>
-const STATUS = {
-  CONFIRMATO: "CONFIRMATO",
-  DA_CONTABILIZZARE: "DA_CONTABILIZZARE",
-  PRESO_IN_CARICO: "PRESO_IN_CARICO"
-};
-let partecipanti = [
-  { id: 1, nome: "Mario Rossi", status: STATUS.CONFIRMATO },
-  { id: 2, nome: "Anna Bianchi", status: STATUS.CONFIRMATO },
-  { id: 3, nome: "Luca Verdi", status: STATUS.DA_CONTABILIZZARE }
-];
-function getNomeClass(status) {
-  if (status === STATUS.CONFIRMATO) {
-    return "nome-confermato";
-  }
-  if (status === STATUS.DA_CONTABILIZZARE) {
-    return "nome-da-contabilizzare";
-  }
-  if (status === STATUS.PRESO_IN_CARICO) {
-    return "nome-preso-in-carico";
-  }
-  return "";
-}
-function getStatusBadgeClass(status) {
-  if (status === STATUS.CONFERMATO) {
-    return "status-badge status-confermato";
-  }
-  if (status === STATUS.DA_CONTABILIZZARE) {
-    return "status-badge status-da-contabilizzare";
-  }
-  if (status === STATUS.PRESO_IN_CARICO) {
-    return "status-badge status-preso-in-carico";
-  }
-  return "status-badge";
-}
-function getStatusLabel(status) {
-  if (status === STATUS.CONFERMATO) {
-    return "Confermato";
-  }
-  if (status === STATUS.DA_CONTABILIZZARE) {
-    return "Da contabilizzare";
-  }
-  if (status === STATUS.PRESO_IN_CARICO) {
-    return "Preso in carico";
-  }
-  return "";
-}
-function getNota(status) {
-  if (status === STATUS.DA_CONTABILIZZARE) {
-    return "Da contabilizzare";
-  }
-  if (status === STATUS.PRESO_IN_CARICO) {
-    return "Il bonifico è stato preso in carico";
-  }
-  return "";
-}
-function aggiornaStato(id, nuovoStato) {
-  partecipanti = partecipanti.map(function (p) {
-    if (p.id === id) {
-      return { id: p.id, nome: p.nome, status: nuovoStato };
-    }
-    return p;
-  });
-  renderPartecipanti();
-}
-function renderPartecipanti() {
-  const tbody = document.getElementById("partecipanti-body");
-  tbody.innerHTML = "";
-  partecipanti.forEach(function (p) {
-    const tr = document.createElement("tr");
-    const tdNome = document.createElement("td");
-    tdNome.textContent = p.nome;
-    tdNome.className = getNomeClass(p.status);
-    const tdStato = document.createElement("td");
-    const spanStato = document.createElement("span");
-    spanStato.className = getStatusBadgeClass(p.status);
-    spanStato.textContent = getStatusLabel(p.status);
-    tdStato.appendChild(spanStato);
-    const tdNota = document.createElement("td");
-    tdNota.textContent = getNota(p.status);
-    tdNota.className = "nota";
-    const tdAzioni = document.createElement("td");
-    if (p.status === STATUS.DA_CONTABILIZZARE) {
-      const btnPresoInCarico = document.createElement("button");
-      btnPresoInCarico.type = "button";
-      btnPresoInCarico.className = "btn btn-secondary";
-      btnPresoInCarico.textContent = "Segna preso in carico";
-      btnPresoInCarico.onclick = function () {
-        aggiornaStato(p.id, STATUS.PRESO_IN_CARICO);
-      };
-      const btnConferma = document.createElement("button");
-      btnConferma.type = "button";
-      btnConferma.className = "btn btn-primary";
-      btnConferma.textContent = "Conferma bonifico";
-      btnConferma.onclick = function () {
-        aggiornaStato(p.id, STATUS.CONFERMATO);
-      };
-      tdAzioni.appendChild(btnPresoInCarico);
-      tdAzioni.appendChild(btnConferma);
-    } else if (p.status === STATUS.PRESO_IN_CARICO) {
-      const btnConferma = document.createElement("button");
-      btnConferma.type = "button";
-      btnConferma.className = "btn btn-primary";
-      btnConferma.textContent = "Conferma bonifico";
-      btnConferma.onclick = function () {
-        aggiornaStato(p.id, STATUS.CONFERMATO);
-      };
-      tdAzioni.appendChild(btnConferma);
-    }
-    tr.appendChild(tdNome);
-    tr.appendChild(tdStato);
-    tr.appendChild(tdNota);
-    tr.appendChild(tdAzioni);
-    tbody.appendChild(tr);
-  });
-}
-function inizializzaForm() {
-  const form = document.getElementById("add-participant-form");
-  const inputNome = document.getElementById("nome-partecipante");
-  const inputFile = document.getElementById("copia-contabile");
-  form.addEventListener("submit", function (event) {
-    event.preventDefault();
-    const nome = inputNome.value.trim();
-    if (!nome) {
-      return;
-    }
-    const file = inputFile.files[0];
-    const nuovo = {
-      id: Date.now(),
-      nome: nome,
-      status: STATUS.DA_CONTABILIZZARE
-    };
-    partecipanti.push(nuovo);
-    inputNome.value = "";
-    inputFile.value = "";
-    inputNome.focus();
-    renderPartecipanti();
-    if (file) {
-      alert("Partecipante aggiunto e copia contabile inviata con successo!");
-    }
-  });
-}
-inizializzaForm();
-renderPartecipanti();
-</script>
+  <main class="wrap">
+    <div class="hero">
+      <span class="tag">PROTOTIPO / DEMO</span>
+      <h1>Sistema Fidelizzazione Clienti</h1>
+      <p class="lead">Un unico progetto per Marco: questa pagina raccoglie tutti i passaggi e apre i tuoi file HTML originali senza modificarne la grafica.</p>
+      <div class="actions"><a class="btn primary" href="recensione.html">▶ Inizia dalla recensione</a></div>
+    </div>
+
+    <section>
+      <h2>Tutti i moduli del progetto</h2>
+      <div class="grid">
+        <div class="card"><h3>⭐ Recensioni</h3><p>Valutazione da 1 a 10 con percorso differenziato.</p><a href="recensione.html">Apri file originale →</a></div>
+        <div class="card"><h3>💬 Feedback privato</h3><p>Pagina riservata ai voti bassi e ai problemi segnalati.</p><a href="feedback_privato.html">Apri file originale →</a></div>
+        <div class="card"><h3>✅ Recensione positiva</h3><p>Google/Facebook, condivisione e passaggio ai punti.</p><a href="recensione_positiva.html">Apri file originale →</a></div>
+        <div class="card"><h3>🎁 Area punti</h3><p>Saldo, scadenza, offerte e storico crociere.</p><a href="punti.html">Apri file originale →</a></div>
+        <div class="card"><h3>🎟 Lotteria</h3><p>Biglietti e requisiti per clienti storici.</p><a href="lotteria.html">Apri file originale →</a></div>
+        <div class="card"><h3>🎁 Lista regalo</h3><p>Partecipazioni, quota e ricevuta.</p><a href="lista_regalo.html">Apri file originale →</a></div>
+        <div class="card"><h3>💳 Buono regalo</h3><p>Grafica, valore, destinatario e pagamento simulato.</p><a href="buono_acquisto.html">Apri file originale →</a></div>
+        <div class="card"><h3>⚙️ Area operatore</h3><p>Parametri lotteria e programma fedeltà.</p><a href="operatore.html">Apri file originale →</a></div>
+        <div class="card"><h3>👥 Gestionale partecipanti</h3><p>Gestione partecipanti e stato bonifici.</p><a href="gestionale_partecipanti.html">Apri file originale →</a></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Flusso completo da ricordare</h2>
+      <div class="steps">
+        <div class="step"><strong>Cliente rientra dal viaggio.</strong><br>Parte il flusso post-viaggio.</div>
+        <div class="step"><strong>L’operatore invia il link.</strong><br>Via Email oppure WhatsApp verso la pagina recensione.</div>
+        <div class="step"><strong>Il cliente lascia un voto da 1 a 10.</strong><br>La pagina decide il percorso successivo.</div>
+        <div class="step"><strong>Voto 0–6.</strong><br>Si apre il feedback privato, senza recensione pubblica.</div>
+        <div class="step"><strong>Voto 7–10.</strong><br>Si apre la recensione positiva con link Google/Facebook e condivisione.</div>
+        <div class="step"><strong>Accredito punti.</strong><br>Il cliente passa all’area punti e visualizza saldo, scadenza e offerte.</div>
+        <div class="step"><strong>Clienti storici.</strong><br>Possono accedere alla lotteria quando rispettano i requisiti impostati.</div>
+        <div class="step"><strong>Altri moduli collegati.</strong><br>Lista regalo, buono regalo e gestionale partecipanti completano il progetto.</div>
+        <div class="step"><strong>Controllo operatore.</strong><br>L’area operatore gestisce parametri della lotteria e del programma fedeltà.</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Schema rapido</h2>
+      <div class="flow">Recensione → 0–6 Feedback privato / 7–10 Recensione positiva → Punti → Lotteria → Gestione operatore<br><br>Moduli aggiuntivi: Lista regalo → Buono regalo → Gestionale partecipanti.</div>
+    </section>
+
+    <p class="note">Questa pagina serve da indice e memoria del progetto. Le singole pagine collegate restano i tuoi HTML originali.</p>
+  </main>
 </body>
 </html>

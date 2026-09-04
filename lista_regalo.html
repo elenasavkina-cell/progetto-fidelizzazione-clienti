@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <title>Lista Regalo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(135deg,#1f3c88,#4e9af1);color:#132743}
+    .container{max-width:900px;margin:40px auto;padding:24px;background:#f7f9fc;border-radius:22px;box-shadow:0 20px 44px rgba(0,0,0,.20)}
+    .header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+    .title{margin:0;font-size:28px;letter-spacing:.04em;text-transform:uppercase;color:#1f3c88}
+    .subtitle{margin:4px 0 0;font-size:14px;color:#4b5b82}
+    .card{background:#fff;border-radius:18px;padding:18px 20px 20px;box-shadow:0 12px 28px rgba(15,23,42,.10);margin-bottom:16px}
+    .card-title{font-size:18px;font-weight:600;color:#1f2937;margin:0 0 10px}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .col{display:flex;flex-direction:column;gap:8px;min-width:220px}
+    .input{padding:10px 12px;border-radius:12px;border:1px solid #d1d5db;font-size:14px;background:#fff;width:100%}
+    .btn{border:none;border-radius:999px;padding:10px 16px;font-size:14px;cursor:pointer}
+    .btn-primary{background:#4f46e5;color:#fff;box-shadow:0 12px 26px rgba(79,70,229,.35)}
+    .btn-outline{background:#fff;color:#374151;border:1px solid #cbd5e1}
+    .pill{display:inline-block;padding:6px 12px;border-radius:999px;background:#e5e7eb}
+    .note{font-size:12px;color:#6b7280}
+    .list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+    .item{border:1px solid #e5e7eb;border-radius:12px;padding:10px;background:#fff;display:flex;justify-content:space-between;align-items:center}
+    .file-note{font-size:12px;color:#475569}
+    @media print{
+      .noprint{display:none}
+      body{background:#fff}
+      .container{box-shadow:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1 class="title">Lista Regalo</h1>
+        <p class="subtitle">Riferimento <span id="refText">—</span></p>
+      </div>
+      <button class="btn btn-outline noprint" onclick="window.print()">Scarica lista aggiornata PDF</button>
+    </div>
+
+    <section class="card">
+      <h2 class="card-title">Grazie di cuore</h2>
+      <p class="note">Grazie di cuore a tutte le persone che hanno partecipato e reso possibile questo regalo speciale <strong id="count">0</strong>.</p>
+    </section>
+
+    <section class="card noprint">
+      <h2 class="card-title">Invia partecipazione</h2>
+      <div class="row">
+        <div class="col">
+          <label>Nome</label>
+          <input id="firstName" class="input" type="text" placeholder="Inserisci il tuo nome">
+        </div>
+        <div class="col">
+          <label>Cognome</label>
+          <input id="lastName" class="input" type="text" placeholder="Inserisci il tuo cognome">
+        </div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <div class="col">
+          <label>Quota versata (€)</label>
+          <input id="amount" class="input" type="number" placeholder="Es. 50" min="0" step="5">
+        </div>
+        <div class="col">
+          <label>Carica copia contabile del bonifico</label>
+          <input id="receipt" class="input" type="file" accept=".pdf,image/*">
+          <span id="fileStatus" class="file-note">Nessun file selezionato</span>
+        </div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button id="submitBtn" class="btn btn-primary">Invia partecipazione</button>
+      </div>
+      <p class="note" style="margin-top:8px">Dopo aver effettuato il bonifico, carica qui la ricevuta per confermare la tua partecipazione.</p>
+      <p id="formMsg" class="note" style="margin-top:8px"></p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Partecipanti</h2>
+      <div id="list" class="list"></div>
+      <p class="note" style="margin-top:8px">Gli importi non vengono mostrati per rispetto della privacy.</p>
+    </section>
+  </div>
+
+  <script>
+    function params(){
+      const p=new URLSearchParams(location.search);
+      return {ref:p.get('ref')||'125/2026'}
+    }
+    function key(ref){return 'pf_giftlist_'+ref.replace(/[^a-zA-Z0-9]/g,'_')}
+    function getList(ref){
+      try{
+        const v=localStorage.getItem(key(ref));
+        return v?JSON.parse(v):[];
+      }catch(e){return []}
+    }
+    function setList(ref,arr){
+      localStorage.setItem(key(ref),JSON.stringify(arr));
+    }
+    function seedIfEmpty(ref){
+      const arr=getList(ref);
+      if(arr.length) return;
+      const base=[
+        {firstName:'Maria',lastName:'Rossi'},
+        {firstName:'Giulia',lastName:'Conti'},
+        {firstName:'Paolo',lastName:'Ferrero'},
+        {firstName:'Marco',lastName:'Neri'},
+        {firstName:'Chiara',lastName:'Romano'}
+      ];
+      const seeded=base.map(n=>({id:String(Math.floor(100000+Math.random()*899999)),...n,amount:0,receiptName:'',ts:Date.now()}));
+      setList(ref,seeded);
+    }
+    function render(){
+      const {ref}=params();
+      document.getElementById('refText').textContent=ref;
+      seedIfEmpty(ref);
+      const arr=getList(ref);
+      document.getElementById('count').textContent=String(arr.length);
+      const box=document.getElementById('list'); box.innerHTML='';
+      arr.forEach(p=>{
+        const d=document.createElement('div');
+        d.className='item';
+        const left=document.createElement('div');
+        left.textContent=p.firstName+' '+p.lastName;
+        const right=document.createElement('div');
+        right.className='note';
+        right.textContent=p.receiptName?('Ricevuta: '+p.receiptName):'—';
+        d.appendChild(left);d.appendChild(right);
+        box.appendChild(d);
+      });
+    }
+    function onFileChange(){
+      const f=document.getElementById('receipt').files[0];
+      document.getElementById('fileStatus').textContent=f?('Selezionato: '+f.name):'Nessun file selezionato';
+    }
+    function submit(){
+      const {ref}=params();
+      const fn=(document.getElementById('firstName').value||'').trim();
+      const ln=(document.getElementById('lastName').value||'').trim();
+      const amt=parseFloat(document.getElementById('amount').value||'0');
+      const f=document.getElementById('receipt').files[0];
+      const msg=document.getElementById('formMsg');
+      if(!fn||!ln){
+        msg.textContent='Inserisci nome e cognome.';
+        return;
+      }
+      const recName=f?f.name:'';
+      const obj={id:String(Math.floor(100000+Math.random()*899999)),firstName:fn,lastName:ln,amount:isFinite(amt)?amt:0,receiptName:recName,ts:Date.now()};
+      const arr=getList(ref);arr.push(obj);setList(ref,arr);
+      document.getElementById('firstName').value='';
+      document.getElementById('lastName').value='';
+      document.getElementById('amount').value='';
+      document.getElementById('receipt').value='';
+      document.getElementById('fileStatus').textContent='Nessun file selezionato';
+      msg.textContent='Partecipazione inviata. Grazie!';
+      render();
+    }
+    document.addEventListener('DOMContentLoaded',function(){
+      render();
+      document.getElementById('receipt').addEventListener('change',onFileChange);
+      document.getElementById('submitBtn').addEventListener('click',submit);
+    });
+  </script>
+</body>
+</html>

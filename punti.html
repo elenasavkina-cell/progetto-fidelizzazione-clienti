@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <title>Area punti (accesso diretto)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(135deg,#1f3c88,#4e9af1);color:#132743}
+    .container{max-width:900px;margin:40px auto;padding:24px;background:#f7f9fc;border-radius:22px;box-shadow:0 20px 44px rgba(0,0,0,.20)}
+    .header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+    .title{margin:0;font-size:28px;letter-spacing:.04em;text-transform:uppercase;color:#1f3c88}
+    .subtitle{margin:4px 0 0;font-size:14px;color:#4b5b82}
+    .card{background:#fff;border-radius:18px;padding:18px 20px 20px;box-shadow:0 12px 28px rgba(15,23,42,.10);margin-bottom:16px}
+    .card-title{font-size:18px;font-weight:600;color:#1f2937;margin:0 0 10px}
+    .row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+    .pill{display:inline-block;padding:8px 14px;border-radius:999px;background:#eef2ff;color:#1f2937}
+    .warning{background:#fff7ed;color:#7c2d12;border:1px solid #fdba74;padding:12px;border-radius:12px}
+    .offers{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+    .offer{border:1px solid #e5e7eb;border-radius:14px;padding:12px}
+    .btn{border:none;border-radius:999px;padding:10px 16px;font-size:14px;cursor:pointer}
+    .btn-primary{background:#4f46e5;color:#fff;box-shadow:0 12px 26px rgba(79,70,229,.35)}
+    .btn-outline{background:#fff;color:#374151;border:1px solid #cbd5e1}
+    .note{font-size:12px;color:#6b7280}
+    .input{padding:10px 12px;border-radius:12px;border:1px solid #d1d5db;font-size:14px;background:#fff}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1 class="title">Area punti</h1>
+        <p class="subtitle">Pagina nascosta: accessibile solo tramite link diretto.</p>
+      </div>
+      <span class="subtitle" id="clientName">Cliente</span>
+    </div>
+
+    <section class="card">
+      <h2 class="card-title">Il tuo saldo</h2>
+      <div class="row">
+        <span class="pill">Punti: <strong id="points">0</strong></span>
+        <span class="pill">Scadenza: <strong id="expire">—</strong></span>
+        <span class="pill">Crociere completate: <strong id="trips">0</strong></span>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn btn-outline" id="addTripBtn">Segna crociera completata</button>
+        <span class="note">Accredito automatico punti viaggio e valida la partecipazione alla lotteria.</span>
+      </div>
+      <p class="note" style="margin-top:8px">I punti scadono dopo 12 mesi dalla prima attivazione.</p>
+      <p class="note">Limite accumulo: al raggiungimento del limite viene applicato uno sconto % e il saldo riparte da zero.</p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Offerte dedicate</h2>
+      <div class="offers">
+        <div class="offer">
+          <strong id="discTitle">Sconto 10% crociere selezionate</strong>
+          <p class="note">Si attiva automaticamente al raggiungimento del limite punti.</p>
+          <button class="btn btn-primary" onclick="manualDiscount()">Applica sconto ora (se idoneo)</button>
+        </div>
+      </div>
+      <div id="redeemMsg" class="warning" style="display:none;margin-top:12px"></div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Condividi recensione e invita un amico</h2>
+      <p class="note">Consigliato: invita solo compagni di viaggio che hanno viaggiato con noi.</p>
+      <div class="row" style="margin-top:8px">
+        <button class="btn btn-outline" id="shareBtn">Condividi su WhatsApp</button>
+        <input id="friendName" class="input" type="text" placeholder="Nome amico">
+        <button class="btn btn-primary" id="confirmRefBtn">Amico confermato</button>
+      </div>
+      <div id="shareMsg" class="warning" style="display:none;margin-top:12px"></div>
+    </section>
+    
+    <section class="card">
+      <h2 class="card-title">Partecipa alla lotteria</h2>
+      <p class="note">Puoi partecipare se sei idoneo (crociere completate ≥ requisito).</p>
+      <div class="row" style="margin-top:8px">
+        <a class="btn btn-primary" id="lotteryBtn" href="lotteria.html" target="_self">Partecipa ora</a>
+        <span class="pill">Idoneità: <strong id="eligibility">—</strong></span>
+      </div>
+      <div id="lotteryMsg" class="warning" style="display:none;margin-top:12px"></div>
+    </section>
+  </div>
+    <section class="card">
+      <h2 class="card-title">Regala un buono</h2>
+      <p class="note">Non sai cosa regalare ai tuoi cari? Regala un buono e guadagni punti.</p>
+      <div class="row" style="margin-top:8px">
+        <a class="btn btn-primary" href="buono_acquisto.html" target="_self">Scegli grafica e acquista</a>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <input id="vAmount" class="input" type="number" placeholder="Valore (€)" min="0" step="10">
+        <input id="vName" class="input" type="text" placeholder="Destinatario (nome)">
+      </div>
+      <div class="row" style="margin-top:8px">
+        <textarea id="vMsg" class="input" rows="3" placeholder="Messaggio da inserire sul buono"></textarea>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn btn-primary" id="buyVoucherBtn">Genera buono regalo</button>
+        <span class="pill">Punti guadagnati: <strong id="voucherPtsPreview">30</strong></span>
+      </div>
+      <div id="voucherMsgBox" class="warning" style="display:none;margin-top:12px"></div>
+    </section>
+
+
+  <script>
+    const CFG={
+    const CFG={
+      POINTS_CAP:200,
+      DISCOUNT_PERCENT:10,
+      TRAVEL_POINTS:100,
+      LOTTERY_TRIPS_REQUIRED:3,
+      SHARE_POINTS:20,
+      REFERRAL_POINTS:30,
+      VOUCHER_POINTS:30
+    };
+    function getPointsCap(){
+      try{
+        const v=localStorage.getItem("pf_loyalty_cfg");
+        if(v){const o=JSON.parse(v);return o.POINTS_CAP??CFG.POINTS_CAP}
+      }catch(e){}
+      const c=localStorage.getItem("pf_pointsCap");
+      return c?parseInt(c,10):CFG.POINTS_CAP;
+    }
+    function getDiscPercent(){
+      try{
+        const v=localStorage.getItem("pf_loyalty_cfg");
+        if(v){const o=JSON.parse(v);return o.DISCOUNT_PERCENT??CFG.DISCOUNT_PERCENT}
+      }catch(e){}
+      const p=localStorage.getItem("pf_discPercent");
+      return p?parseInt(p,10):CFG.DISCOUNT_PERCENT;
+    }
+    function getLotteryTripsReq(){
+      try{
+        const v=localStorage.getItem("pf_lottery_cfg");
+        if(!v) return CFG.LOTTERY_TRIPS_REQUIRED;
+        const o=JSON.parse(v);
+        return o.LOTTERY_TRIPS_REQUIRED??CFG.LOTTERY_TRIPS_REQUIRED;
+      }catch(e){return CFG.LOTTERY_TRIPS_REQUIRED}
+    }
+    function params(){
+      const p=new URLSearchParams(location.search);
+      return {name:p.get("name")||"Cliente",trip:p.get("trip")||"Viaggio"}
+    }
+    function ensureExpiry(){
+      const k="pf_exp";
+      let v=localStorage.getItem(k);
+      if(!v){
+        const d=new Date();
+        d.setMonth(d.getMonth()+12);
+        v=String(d.getTime());
+        localStorage.setItem(k,v);
+      }
+      const d=new Date(parseInt(v,10));
+      return d.toLocaleDateString();
+    }
+    function getPoints(){
+      return parseInt(localStorage.getItem("pf_points")||"0",10);
+    }
+    function setPoints(v){
+      localStorage.setItem("pf_points",String(v));
+      document.getElementById("points").textContent=String(v);
+    }
+    function getTrips(){
+      return parseInt(localStorage.getItem("pf_trips")||"0",10);
+    }
+    function setTrips(v){
+      localStorage.setItem("pf_trips",String(v));
+      document.getElementById("trips").textContent=String(v);
+    }
+    function checkCapAndDiscount(){
+      const pts=getPoints();
+      const cap=getPointsCap();
+      const percent=getDiscPercent();
+      if(pts>=cap){
+        const discCount=parseInt(localStorage.getItem("pf_discounts")||"0",10);
+        localStorage.setItem("pf_discounts",String(discCount+1));
+        localStorage.setItem("pf_lastDiscount",String(Date.now()));
+        setPoints(0);
+        const box=document.getElementById("redeemMsg");
+        box.textContent="Sconto "+percent+"% attivato automaticamente. Il saldo punti riparte da zero.";
+        box.style.display="block";
+      }
+    }
+    function awardPoints(amount){
+      const next=getPoints()+amount;
+      setPoints(next);
+      try{
+        const life=parseInt(localStorage.getItem("pf_pointsLifetime")||"0",10)+amount;
+        localStorage.setItem("pf_pointsLifetime",String(life));
+      }catch(e){}
+      checkCapAndDiscount();
+    }
+    function redeem(code,need){
+      const pts=getPoints();
+      const box=document.getElementById("redeemMsg");
+      if(pts<need){
+        box.textContent="Servono "+need+" punti. Saldo attuale: "+pts+".";
+      }else{
+        box.textContent="Offerta attivata! Codice: "+code+". Ti contatteremo per i dettagli.";
+        try{
+          localStorage.setItem("pf_points",String(pts-need));
+          document.getElementById("points").textContent=String(pts-need);
+        }catch(e){}
+      }
+      box.style.display="block";
+    }
+    function manualDiscount(){
+      const pts=getPoints();
+      const box=document.getElementById("redeemMsg");
+      const cap=getPointsCap();
+      if(pts<cap){
+        box.textContent="Non hai ancora raggiunto il limite punti ("+cap+"). Saldo: "+pts+".";
+      }else{
+        checkCapAndDiscount();
+      }
+      box.style.display="block";
+    }
+    function addTrip(){
+      const t=getTrips()+1;
+      setTrips(t);
+      awardPoints(CFG.TRAVEL_POINTS);
+      const box=document.getElementById("redeemMsg");
+      box.textContent="Crociere completate: "+t+". Punti viaggio accreditati (+ "+CFG.TRAVEL_POINTS+").";
+      box.style.display="block";
+    }
+    function shareReview(){
+      const d=params();
+      const base=location.origin+location.pathname.replace("punti.html","recensione.html");
+      const url=base+"?trip="+encodeURIComponent(d.trip)+"&date="+encodeURIComponent(new Date().toLocaleDateString());
+      const msg="Lascia la recensione del viaggio '"+d.trip+"' e accumula punti: "+url;
+      window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
+      awardPoints(CFG.SHARE_POINTS);
+      const box=document.getElementById("shareMsg");
+      box.textContent="Condivisione inviata. Punti accreditati (+ "+CFG.SHARE_POINTS+").";
+      box.style.display="block";
+    }
+    function confirmReferral(){
+      const f=document.getElementById("friendName").value.trim();
+      const box=document.getElementById("shareMsg");
+      if(!f){
+        box.textContent="Inserisci il nome dell’amico che ha viaggiato con noi.";
+      }else{
+        awardPoints(CFG.REFERRAL_POINTS);
+        box.textContent="Amico confermato: "+f+". Punti referral accreditati (+ "+CFG.REFERRAL_POINTS+").";
+      }
+      box.style.display="block";
+    }
+    function getVouchers(){
+      try{return JSON.parse(localStorage.getItem("pf_vouchers")||"[]")}catch(e){return []}
+    }
+    function setVouchers(a){
+      localStorage.setItem("pf_vouchers",JSON.stringify(a));
+    }
+    function genCode(len){
+      const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let s="";for(let i=0;i<len;i++){s+=chars[Math.floor(Math.random()*chars.length)]}
+      return s;
+    }
+    function buyVoucher(){
+      const amount=parseFloat(document.getElementById("vAmount").value||"0");
+      const name=(document.getElementById("vName").value||"").trim();
+      const message=(document.getElementById("vMsg").value||"").trim();
+      const box=document.getElementById("voucherMsgBox");
+      if(!amount||amount<=0||!name){
+        box.textContent="Inserisci un valore valido e il destinatario.";
+        box.style.display="block";
+        return;
+      }
+      const code=genCode(8);
+      const v={id:String(Math.floor(100000+Math.random()*899999)),code,amount,name,message,ts:Date.now(),redeemed:false};
+      const arr=getVouchers();arr.push(v);setVouchers(arr);
+      awardPoints(CFG.VOUCHER_POINTS);
+      document.getElementById("voucherPtsPreview").textContent=String(CFG.VOUCHER_POINTS);
+      box.textContent="Buono generato: codice "+code+" del valore di €"+amount+". Punti accreditati (+ "+CFG.VOUCHER_POINTS+").";
+      box.style.display="block";
+      document.getElementById("vAmount").value="";
+      document.getElementById("vName").value="";
+      document.getElementById("vMsg").value="";
+    }
+    function updateLotteryEligibility(){
+      const t=getTrips();
+      const req=getLotteryTripsReq();
+      const ok=t>=req;
+      document.getElementById("eligibility").textContent=ok?"Idoneo":"Non idoneo";
+      const btn=document.getElementById("lotteryBtn");
+      if(ok){
+        document.getElementById("lotteryMsg").style.display="none";
+        btn.className="btn btn-primary";
+      }else{
+        document.getElementById("lotteryMsg").textContent="Non idoneo: servono almeno "+req+" crociere completate.";
+        document.getElementById("lotteryMsg").style.display="block";
+        btn.className="btn btn-outline";
+      }
+    }
+    document.addEventListener("DOMContentLoaded",function(){
+      const d=params();
+      document.getElementById("clientName").textContent=d.name;
+      document.getElementById("points").textContent=String(getPoints());
+      document.getElementById("expire").textContent=ensureExpiry();
+      document.getElementById("trips").textContent=String(getTrips());
+      document.getElementById("addTripBtn").addEventListener("click",addTrip);
+      document.getElementById("discTitle").textContent="Sconto "+getDiscPercent()+"% crociere selezionate";
+      document.getElementById("shareBtn").addEventListener("click",shareReview);
+      document.getElementById("confirmRefBtn").addEventListener("click",confirmReferral);
+      document.getElementById("buyVoucherBtn").addEventListener("click",buyVoucher);
+      updateLotteryEligibility();
+    });
+  </script>
+</body>
+</html>

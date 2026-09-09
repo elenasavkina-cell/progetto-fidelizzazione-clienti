@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <title>Gestione Lista Regalo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(135deg,#1f3c88,#4e9af1);color:#132743}
+    .container{max-width:980px;margin:40px auto;padding:24px;background:#f7f9fc;border-radius:22px;box-shadow:0 20px 44px rgba(0,0,0,.20)}
+    .header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+    .title{margin:0;font-size:28px;letter-spacing:.04em;text-transform:uppercase;color:#1f3c88}
+    .subtitle{margin:4px 0 0;font-size:14px;color:#4b5b82}
+    .card{background:#fff;border-radius:18px;padding:18px 20px 20px;box-shadow:0 12px 28px rgba(15,23,42,.10);margin-bottom:16px}
+    .card-title{font-size:18px;font-weight:600;color:#1f2937;margin:0 0 10px}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .col{display:flex;flex-direction:column;gap:8px;min-width:220px;flex:1}
+    .input,.select{padding:10px 12px;border-radius:12px;border:1px solid #d1d5db;font-size:14px;background:#fff;width:100%}
+    .btn{border:none;border-radius:999px;padding:10px 16px;font-size:14px;cursor:pointer}
+    .btn-primary{background:#4f46e5;color:#fff;box-shadow:0 12px 26px rgba(79,70,229,.35)}
+    .btn-outline{background:#fff;color:#374151;border:1px solid #cbd5e1}
+    .btn-success{background:#059669;color:#fff}
+    .btn-danger{background:#dc2626;color:#fff}
+    .note{font-size:12px;color:#6b7280;line-height:1.5}
+    .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+    .stat{background:#eef2ff;border:1px solid #c7d2fe;border-radius:14px;padding:14px}
+    .stat strong{display:block;font-size:22px;color:#1f3c88;margin-top:4px}
+    .table-wrap{overflow:auto}
+    table{width:100%;border-collapse:collapse;min-width:760px}
+    th,td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left;font-size:13px;vertical-align:middle}
+    th{color:#475569;background:#f8fafc}
+    .badge{display:inline-block;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:700}
+    .pending{background:#fee2e2;color:#991b1b}
+    .taken{background:#fef3c7;color:#92400e}
+    .confirmed{background:#dbeafe;color:#1e3a8a}
+    .cash{background:#dcfce7;color:#166534}
+    .actions{display:flex;gap:6px;flex-wrap:wrap}
+    @media(max-width:640px){.header{flex-direction:column;align-items:flex-start}.title{font-size:24px}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1 class="title">Gestione Lista Regalo</h1>
+        <p class="subtitle">Riferimento <span id="refText">—</span></p>
+      </div>
+      <a class="btn btn-outline" id="publicLink" href="lista_regalo.html">Apri pagina cliente</a>
+    </div>
+
+    <section class="card">
+      <h2 class="card-title">Riepilogo</h2>
+      <div class="summary">
+        <div class="stat">Partecipanti<strong id="count">0</strong></div>
+        <div class="stat">Totale raccolto<strong id="total">€ 0</strong></div>
+        <div class="stat">Bonifici da verificare<strong id="pendingCount">0</strong></div>
+        <div class="stat">Contanti in agenzia<strong id="cashCount">0</strong></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Inserimento da parte dell’operatore</h2>
+      <p class="note">Da usare quando una persona viene direttamente in agenzia e lascia la propria quota, ad esempio in contanti.</p>
+      <div class="row">
+        <div class="col"><label>Nome</label><input id="firstName" class="input" type="text" placeholder="Nome"></div>
+        <div class="col"><label>Cognome</label><input id="lastName" class="input" type="text" placeholder="Cognome"></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div class="col"><label>Quota (€)</label><input id="amount" class="input" type="number" min="0" step="5" placeholder="Es. 50"></div>
+        <div class="col"><label>Modalità</label><select id="method" class="select"><option value="Contanti in agenzia">Contanti in agenzia</option><option value="Bonifico registrato da operatore">Bonifico registrato da operatore</option></select></div>
+      </div>
+      <div style="margin-top:12px"><button id="addBtn" class="btn btn-primary">Aggiungi partecipante</button></div>
+      <p id="formMsg" class="note"></p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Partecipanti alla lista regalo</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Partecipante</th><th>Quota</th><th>Provenienza</th><th>Ricevuta</th><th>Stato</th><th>Azioni</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+<script>
+  function params(){const p=new URLSearchParams(location.search);return {ref:p.get('ref')||'125/2026'}}
+  function key(ref){return 'pf_giftlist_'+ref.replace(/[^a-zA-Z0-9]/g,'_')}
+  function getList(ref){try{const v=localStorage.getItem(key(ref));return v?JSON.parse(v):[]}catch(e){return []}}
+  function setList(ref,arr){localStorage.setItem(key(ref),JSON.stringify(arr))}
+  function normalize(p){
+    if(!p.source) p.source=p.receiptName?'Cliente online':'Inserimento precedente';
+    if(!p.status) p.status=p.receiptName?'DA_CONTABILIZZARE':'CONFERMATO';
+    return p;
+  }
+  function badge(status){
+    if(status==='DA_CONTABILIZZARE') return '<span class="badge pending">Da contabilizzare</span>';
+    if(status==='PRESO_IN_CARICO') return '<span class="badge taken">Preso in carico</span>';
+    if(status==='CONTANTI') return '<span class="badge cash">Contanti registrati</span>';
+    return '<span class="badge confirmed">Confermato</span>';
+  }
+  function render(){
+    const {ref}=params();
+    document.getElementById('refText').textContent=ref;
+    document.getElementById('publicLink').href='lista_regalo.html?ref='+encodeURIComponent(ref);
+    const arr=getList(ref).map(normalize); setList(ref,arr);
+    document.getElementById('count').textContent=arr.length;
+    const total=arr.reduce((s,p)=>s+(parseFloat(p.amount)||0),0);
+    document.getElementById('total').textContent='€ '+total.toFixed(2).replace('.',',');
+    document.getElementById('pendingCount').textContent=arr.filter(p=>p.status==='DA_CONTABILIZZARE'||p.status==='PRESO_IN_CARICO').length;
+    document.getElementById('cashCount').textContent=arr.filter(p=>p.source==='Contanti in agenzia').length;
+    const tb=document.getElementById('tbody'); tb.innerHTML='';
+    arr.forEach(p=>{
+      const tr=document.createElement('tr');
+      const receipt=p.receiptName?p.receiptName:'—';
+      tr.innerHTML='<td>'+escapeHtml((p.firstName||'')+' '+(p.lastName||''))+'</td><td>€ '+Number(p.amount||0).toFixed(2).replace('.',',')+'</td><td>'+escapeHtml(p.source||'—')+'</td><td>'+escapeHtml(receipt)+'</td><td>'+badge(p.status)+'</td><td><div class="actions"></div></td>';
+      const box=tr.querySelector('.actions');
+      if(p.status==='DA_CONTABILIZZARE'){
+        const take=document.createElement('button'); take.className='btn btn-outline'; take.textContent='Prendi in carico'; take.onclick=()=>changeStatus(p.id,'PRESO_IN_CARICO'); box.appendChild(take);
+      }
+      if(p.status==='DA_CONTABILIZZARE'||p.status==='PRESO_IN_CARICO'){
+        const conf=document.createElement('button'); conf.className='btn btn-success'; conf.textContent='Conferma'; conf.onclick=()=>changeStatus(p.id,'CONFERMATO'); box.appendChild(conf);
+      }
+      const del=document.createElement('button'); del.className='btn btn-danger'; del.textContent='Rimuovi'; del.onclick=()=>removeParticipant(p.id); box.appendChild(del);
+      tb.appendChild(tr);
+    });
+  }
+  function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+  function addParticipant(){
+    const {ref}=params(); const fn=document.getElementById('firstName').value.trim(); const ln=document.getElementById('lastName').value.trim(); const amount=parseFloat(document.getElementById('amount').value||'0'); const method=document.getElementById('method').value;
+    const msg=document.getElementById('formMsg');
+    if(!fn||!ln){msg.textContent='Inserisci nome e cognome.';return}
+    const arr=getList(ref);
+    arr.push({id:String(Date.now()),firstName:fn,lastName:ln,amount:isFinite(amount)?amount:0,receiptName:'',source:method,status:method==='Contanti in agenzia'?'CONTANTI':'CONFERMATO',ts:Date.now()});
+    setList(ref,arr); document.getElementById('firstName').value=''; document.getElementById('lastName').value=''; document.getElementById('amount').value=''; msg.textContent='Partecipante aggiunto.'; render();
+  }
+  function changeStatus(id,status){const {ref}=params();const arr=getList(ref).map(p=>String(p.id)===String(id)?{...p,status}:p);setList(ref,arr);render()}
+  function removeParticipant(id){const {ref}=params();if(!confirm('Rimuovere questo partecipante?'))return;setList(ref,getList(ref).filter(p=>String(p.id)!==String(id)));render()}
+  document.addEventListener('DOMContentLoaded',()=>{document.getElementById('addBtn').addEventListener('click',addParticipant);render()});
+</script>
+</body>
+</html>

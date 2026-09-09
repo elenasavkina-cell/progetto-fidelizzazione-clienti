@@ -52,7 +52,7 @@
       <h2 class="card-title">Riepilogo</h2>
       <div class="summary">
         <div class="stat">Partecipanti<strong id="count">0</strong></div>
-        <div class="stat">Totale raccolto<strong id="total">€ 0</strong></div>
+        <div class="stat">Totale confermato<strong id="total">€ 0</strong></div>
         <div class="stat">Bonifici da verificare<strong id="pendingCount">0</strong></div>
         <div class="stat">Contanti in agenzia<strong id="cashCount">0</strong></div>
       </div>
@@ -91,22 +91,26 @@
   function setList(ref,arr){localStorage.setItem(key(ref),JSON.stringify(arr))}
   function normalize(p){
     if(!p.source) p.source=p.receiptName?'Cliente online':'Inserimento precedente';
-    if(!p.status) p.status=p.receiptName?'DA_CONTABILIZZARE':'CONFERMATO';
+    if(!p.status){
+      if(p.source==='Contanti in agenzia') p.status='CONTANTI';
+      else p.status='DA_CONTABILIZZARE';
+    }
     return p;
   }
   function badge(status){
-    if(status==='DA_CONTABILIZZARE') return '<span class="badge pending">Da contabilizzare</span>';
+    if(status==='DA_CONTABILIZZARE') return '<span class="badge pending">Da verificare</span>';
     if(status==='PRESO_IN_CARICO') return '<span class="badge taken">Preso in carico</span>';
     if(status==='CONTANTI') return '<span class="badge cash">Contanti registrati</span>';
     return '<span class="badge confirmed">Confermato</span>';
   }
+  function isConfirmed(p){return p.status==='CONFERMATO'||p.status==='CONTANTI'}
   function render(){
     const {ref}=params();
     document.getElementById('refText').textContent=ref;
     document.getElementById('publicLink').href='lista_regalo.html?ref='+encodeURIComponent(ref);
     const arr=getList(ref).map(normalize); setList(ref,arr);
     document.getElementById('count').textContent=arr.length;
-    const total=arr.reduce((s,p)=>s+(parseFloat(p.amount)||0),0);
+    const total=arr.filter(isConfirmed).reduce((s,p)=>s+(parseFloat(p.amount)||0),0);
     document.getElementById('total').textContent='€ '+total.toFixed(2).replace('.',',');
     document.getElementById('pendingCount').textContent=arr.filter(p=>p.status==='DA_CONTABILIZZARE'||p.status==='PRESO_IN_CARICO').length;
     document.getElementById('cashCount').textContent=arr.filter(p=>p.source==='Contanti in agenzia').length;
@@ -120,7 +124,7 @@
         const take=document.createElement('button'); take.className='btn btn-outline'; take.textContent='Prendi in carico'; take.onclick=()=>changeStatus(p.id,'PRESO_IN_CARICO'); box.appendChild(take);
       }
       if(p.status==='DA_CONTABILIZZARE'||p.status==='PRESO_IN_CARICO'){
-        const conf=document.createElement('button'); conf.className='btn btn-success'; conf.textContent='Conferma'; conf.onclick=()=>changeStatus(p.id,'CONFERMATO'); box.appendChild(conf);
+        const conf=document.createElement('button'); conf.className='btn btn-success'; conf.textContent='Conferma accredito'; conf.onclick=()=>changeStatus(p.id,'CONFERMATO'); box.appendChild(conf);
       }
       const del=document.createElement('button'); del.className='btn btn-danger'; del.textContent='Rimuovi'; del.onclick=()=>removeParticipant(p.id); box.appendChild(del);
       tb.appendChild(tr);
@@ -132,7 +136,8 @@
     const msg=document.getElementById('formMsg');
     if(!fn||!ln){msg.textContent='Inserisci nome e cognome.';return}
     const arr=getList(ref);
-    arr.push({id:String(Date.now()),firstName:fn,lastName:ln,amount:isFinite(amount)?amount:0,receiptName:'',source:method,status:method==='Contanti in agenzia'?'CONTANTI':'CONFERMATO',ts:Date.now()});
+    const status=method==='Contanti in agenzia'?'CONTANTI':'DA_CONTABILIZZARE';
+    arr.push({id:String(Date.now()),firstName:fn,lastName:ln,amount:isFinite(amount)?amount:0,receiptName:'',source:method,status,ts:Date.now()});
     setList(ref,arr); document.getElementById('firstName').value=''; document.getElementById('lastName').value=''; document.getElementById('amount').value=''; msg.textContent='Partecipante aggiunto.'; render();
   }
   function changeStatus(id,status){const {ref}=params();const arr=getList(ref).map(p=>String(p.id)===String(id)?{...p,status}:p);setList(ref,arr);render()}
